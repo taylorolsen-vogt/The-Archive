@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>The Archive</title>
 
-  <!-- Major Mono Display (for selected glyphs) -->
+  <!-- Major Mono Display (for A / T glyphs) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -18,24 +18,61 @@
       width: 100%;
       height: 100%;
       background: black;
-      color: white;
+      overflow: hidden;
 
-      /* Base font (neutral, technical) */
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: geometricPrecision;
     }
 
-    body {
+    /* ===== EARTH ===== */
+    #earth {
+      position: fixed;
+      inset: 0;
+      background: url("earth.jpg") center center / cover no-repeat;
+      opacity: 0;
+      transition: opacity 2.2s ease;
+      z-index: 0;
+    }
+
+    #earth.visible {
+      opacity: 1;
+    }
+
+    /* ===== TITLE ===== */
+    #title {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
       display: flex;
       align-items: center;
-      justify-content: center;
 
-      font-size: 30px;
+      font-size: 40px;
       letter-spacing: 0.35em;
       font-weight: 300;
+      color: white;
+
+      z-index: 1;
+
+      transition:
+        top 1.6s ease,
+        left 1.6s ease,
+        transform 1.6s ease,
+        font-size 1.6s ease,
+        letter-spacing 1.6s ease;
+    }
+
+    /* Final parked position */
+    #title.parked {
+      top: 28px;
+      left: 36px;
+      transform: none;
+
+      font-size: 16px;
+      letter-spacing: 0.32em;
     }
 
     /* Instrument glyphs */
@@ -47,8 +84,33 @@
 </head>
 
 <body>
-  <span class="mono">T</span>HE
-  &nbsp;
-  <span class="mono">A</span>RCHIVE
+
+  <!-- Earth layer -->
+  <div id="earth"></div>
+
+  <!-- Title -->
+  <div id="title">
+    <span class="mono">T</span>HE
+    &nbsp;
+    <span class="mono">A</span>RCHIVE
+  </div>
+
+  <script>
+    const earth = document.getElementById("earth");
+    const title = document.getElementById("title");
+
+    window.addEventListener("load", () => {
+      // Fade Earth in
+      setTimeout(() => {
+        earth.classList.add("visible");
+      }, 600);
+
+      // Move title to instrument position
+      setTimeout(() => {
+        title.classList.add("parked");
+      }, 1200);
+    });
+  </script>
+
 </body>
 </html>
