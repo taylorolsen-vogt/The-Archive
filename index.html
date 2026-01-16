@@ -3,23 +3,52 @@
 <head>
   <meta charset="utf-8">
   <title>The Archive</title>
+
+  <!-- Major Mono Display (for selected glyphs) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap"
+    rel="stylesheet"
+  >
+
   <style>
     html, body {
       margin: 0;
+      width: 100%;
       height: 100%;
       background: black;
       color: white;
-      font-family: system-ui, sans-serif;
+
+      /* Base font (neutral, technical) */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: geometricPrecision;
     }
+
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      letter-spacing: 0.4em;
+
+      font-size: 40px;
+      letter-spacing: 0.35em;
+      font-weight: 300;
+    }
+
+    /* Instrument glyphs */
+    .mono {
+      font-family: 'Major Mono Display', monospace;
+      font-weight: 400;
     }
   </style>
 </head>
+
 <body>
-  THE ARCHIVE
+  <span class="mono">T</span>HE
+  &nbsp;
+  <span class="mono">A</span>RCHIVE
 </body>
 </html>
