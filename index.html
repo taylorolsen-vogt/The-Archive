@@ -1,62 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>The Archive</title>
-
-  <!-- Major Mono Display -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap"
-    rel="stylesheet"
-  >
-
   <style>
-   html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  font-family: 'Major Mono Display', monospace;
-
-  /* Rendering quality */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
-}
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* THIS is the key difference */
-  font-size: 42px;        /* ↑ much larger */
-  letter-spacing: 0.22em; /* ↓ tighter */
-  line-height: 1;
-
-  opacity: 0;
-  transition: opacity 1.4s ease;
-}
-
-body.loaded {
-  opacity: 1;
-}
-
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: black;
+      color: white;
+      font-family: system-ui, sans-serif;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.4em;
+    }
   </style>
 </head>
-
 <body>
   THE ARCHIVE
-
-  <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.body.classList.add("loaded");
-      }, 700); // delay before reveal (ms)
-    });
-  </script>
 </body>
 </html>
