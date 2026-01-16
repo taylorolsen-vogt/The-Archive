@@ -13,31 +13,38 @@
   >
 
   <style>
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: #fff;
-      font-family: 'Major Mono Display', monospace;
-    }
+   html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: 'Major Mono Display', monospace;
 
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  /* Rendering quality */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
 
-      font-size: 14px;
-      letter-spacing: 0.45em;
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      /* boot fade */
-      opacity: 0;
-      transition: opacity 1.4s ease;
-    }
+  /* THIS is the key difference */
+  font-size: 42px;        /* ↑ much larger */
+  letter-spacing: 0.22em; /* ↓ tighter */
+  line-height: 1;
 
-    body.loaded {
-      opacity: 1;
-    }
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+body.loaded {
+  opacity: 1;
+}
+
   </style>
 </head>
 
