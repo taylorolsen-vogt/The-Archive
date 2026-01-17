@@ -186,29 +186,19 @@
     #timelineSlider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #4d99cc;
-      border: 2px solid white;
-      border-radius: 50%;
+      width: 0;
+      height: 0;
+      background: transparent;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(77, 153, 204, 0.8);
-      transition: all 0.2s;
-    }
-
-    #timelineSlider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      box-shadow: 0 0 25px rgba(77, 153, 204, 1);
     }
 
     #timelineSlider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      background: #4d99cc;
-      border: 2px solid white;
-      border-radius: 50%;
+      width: 0;
+      height: 0;
+      background: transparent;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(77, 153, 204, 0.8);
     }
   </style>
 </head>
@@ -336,8 +326,8 @@
         star.draw();
       }
 
-      // Rare shooting star (very low probability)
-      if (!shootingStar && Math.random() < 0.00001) {
+      // Rare shooting star (TESTING - increased frequency)
+      if (!shootingStar && Math.random() < 0.002) {
         shootingStar = {
           x: Math.random() * spaceCanvas.width,
           y: Math.random() * spaceCanvas.height * 0.6,
@@ -445,13 +435,40 @@
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
 
-      // Night lights layer (emissive on dark side)
+      // Night lights layer (only visible on dark side)
       const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
-      const nightMaterial = new THREE.MeshBasicMaterial({
-        map: textureLoader.load('./textures/earth_night.jpg'),
+      const nightTexture = textureLoader.load('./textures/earth_night.jpg');
+      const nightMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          nightTexture: { value: nightTexture },
+          sunDirection: { value: new THREE.Vector3(5, 2, 3).normalize() }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          varying vec3 vNormal;
+          void main() {
+            vUv = uv;
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D nightTexture;
+          uniform vec3 sunDirection;
+          varying vec2 vUv;
+          varying vec3 vNormal;
+          void main() {
+            vec3 dayNightMix = texture2D(nightTexture, vUv).rgb;
+            float cosineAngleSunToNormal = dot(normalize(vNormal), sunDirection);
+            cosineAngleSunToNormal = clamp(cosineAngleSunToNormal * 10.0, -1.0, 1.0);
+            float mixAmount = cosineAngleSunToNormal * 0.5 + 0.5;
+            mixAmount = 1.0 - mixAmount;
+            mixAmount = pow(mixAmount, 3.0);
+            gl_FragColor = vec4(dayNightMix * mixAmount * 1.5, mixAmount);
+          }
+        `,
         blending: THREE.AdditiveBlending,
-        transparent: true,
-        opacity: 0.8
+        transparent: true
       });
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
