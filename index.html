@@ -479,8 +479,8 @@
         earth.rotation.y += rotationVelocity.y;
         
         // Damping
-        rotationVelocity.x *= 0.009;
-        rotationVelocity.y *= 0.009;
+        rotationVelocity.x *= 0.02;
+        rotationVelocity.y *= 0.02;
       }
 
       renderer.render(scene, camera);
