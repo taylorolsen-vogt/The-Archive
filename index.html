@@ -1373,13 +1373,13 @@
 
       // Moon orbital motion (slow 2D orbit, always on screen)
       if (window.moon) {
-        const time = Date.now() * 0.0001; // Very slow rotation
-        const orbitRadius = 2.2; // Distance from Earth center
+        const time = Date.now() * 0.00002; // Slow orbit
+        const orbitRadius = 1.5; // Orbit distance
         
-        // Circular motion in X-Y plane (screen space)
+        // Circular motion in X-Z plane (orbiting around Y-axis, like a clock face)
         window.moon.position.x = Math.cos(time) * orbitRadius;
-        window.moon.position.y = Math.sin(time) * orbitRadius;
-        window.moon.position.z = 0.5; // Slightly forward of Earth
+        window.moon.position.z = Math.sin(time) * orbitRadius;
+        window.moon.position.y = 0; // Keep at Earth's equator level
         
         // Rotate Moon on its axis slowly
         window.moon.rotation.y += 0.0002;
