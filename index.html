@@ -35,15 +35,57 @@
       z-index: 0;
     }
 
-    /* ===== TITLE ===== */
-    #title {
+    /* ===== TOP TOOLBAR ===== */
+    #toolbar {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      top: -48px; /* hidden initially */
+      left: 0;
+      right: 0;
+      height: 48px;
 
       display: flex;
       align-items: center;
+
+      padding-left: 28px;
+
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.85),
+        rgba(0,0,0,0.0)
+      );
+
+      z-index: 2;
+
+      transition: top 1.6s ease;
+      pointer-events: none;
+    }
+
+    #toolbar.active {
+      top: 0;
+    }
+
+    /* ===== TITLE ===== */
+    #title {
+      display: flex;
+      align-items: center;
+
+      font-size: 14px;
+      letter-spacing: 0.32em;
+      font-weight: 300;
+    }
+
+    .mono {
+      font-family: 'Major Mono Display', monospace;
+      font-weight: 400;
+    }
+
+    /* Boot title (centered state) */
+    #bootTitle {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       font-size: 30px;
       letter-spacing: 0.35em;
@@ -53,26 +95,13 @@
       pointer-events: none;
 
       transition:
-        top 1.8s ease,
-        left 1.8s ease,
-        transform 1.8s ease,
-        font-size 1.8s ease,
-        letter-spacing 1.8s ease;
+        opacity 1.2s ease,
+        transform 1.2s ease;
     }
 
-    /* Parked instrument label */
-    #title.parked {
-      top: 22px;
-      left: 28px;
-      transform: none;
-
-      font-size: 14px;
-      letter-spacing: 0.32em;
-    }
-
-    .mono {
-      font-family: 'Major Mono Display', monospace;
-      font-weight: 400;
+    #bootTitle.hidden {
+      opacity: 0;
+      transform: translateY(-10px);
     }
   </style>
 </head>
@@ -82,22 +111,32 @@
   <!-- Star Field -->
   <canvas id="spaceCanvas"></canvas>
 
-  <!-- Archive Title -->
-  <div id="title">
+  <!-- Boot Title -->
+  <div id="bootTitle">
     <span class="mono">T</span>HE
     &nbsp;
     <span class="mono">A</span>RCHIVE
   </div>
 
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <div id="title">
+      <span class="mono">T</span>HE
+      &nbsp;
+      <span class="mono">A</span>RCHIVE
+    </div>
+  </div>
+
   <script>
     /**
-     * Sub-Perceptual Star Field
-     * Instrument-grade: non-synchronous, non-periodic, barely evolving.
+     * Sub-perceptual star field
+     * Dense, slow, non-synchronous, non-rhythmic.
      */
 
     const canvas = document.getElementById('spaceCanvas');
     const ctx = canvas.getContext('2d');
-    const title = document.getElementById('title');
+    const bootTitle = document.getElementById('bootTitle');
+    const toolbar = document.getElementById('toolbar');
 
     let stars = [];
     let time = 0;
@@ -115,26 +154,25 @@
 
         const layer = Math.random();
 
-        if (layer > 0.97) {
+        if (layer > 0.96) {
           this.size = Math.random() * 0.9 + 0.6;
           this.baseOpacity = Math.random() * 0.35 + 0.35;
-          this.glimmer = 0.1;
-        } else if (layer > 0.75) {
-          this.size = Math.random() * 0.5 + 0.2;
+          this.glimmer = 0.015;
+        } else if (layer > 0.65) {
+          this.size = Math.random() * 0.45 + 0.2;
           this.baseOpacity = Math.random() * 0.25 + 0.15;
-          this.glimmer = 0.1;
+          this.glimmer = 0.01;
         } else {
           this.size = Math.random() * 0.35 + 0.1;
-          this.baseOpacity = Math.random() * 0.15 + 0.05;
-          this.glimmer = 0.1;
+          this.baseOpacity = Math.random() * 0.18 + 0.05;
+          this.glimmer = 0.005;
         }
 
         this.phase = Math.random() * Math.PI * 2;
-        this.frequency = Math.random() * 0.008 + 0.002;
-        this.amplitude = Math.random() * 0.12 + 0.03;
-        this.drift = Math.random() * 0.0003 + 0.0001;
+        this.frequency = Math.random() * 0.006 + 0.002;
+        this.amplitude = Math.random() * 0.1 + 0.03;
+        this.drift = Math.random() * 0.00025 + 0.0001;
 
-        this.color = '#ffffff';
         this.opacity = this.baseOpacity;
       }
 
@@ -144,15 +182,15 @@
         const breath = Math.sin(time * this.frequency + this.phase);
         const noise = (Math.random() - 0.5) * this.glimmer;
 
-        this.opacity = this.baseOpacity + (breath * this.amplitude) + noise;
+        this.opacity = this.baseOpacity + breath * this.amplitude + noise;
 
         if (this.opacity < 0.02) this.opacity = 0.02;
-        if (this.opacity > 1.0) this.opacity = 1.0;
+        if (this.opacity > 1) this.opacity = 1;
       }
 
       draw() {
         ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
@@ -161,13 +199,13 @@
 
     function createStars() {
       stars = [];
-      // Slightly denser than before (≈ +18%)
-      const count = Math.floor((canvas.width * canvas.height) / 4500);
+      // Increased density (≈ +30%)
+      const count = Math.floor((canvas.width * canvas.height) / 3300);
       for (let i = 0; i < count; i++) stars.push(new Star());
     }
 
     function animate() {
-      time += 0.0045; // extremely slow evolution
+      time += 0.0028;
 
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#000';
@@ -183,15 +221,15 @@
 
     window.addEventListener('resize', resize);
 
-    // Boot sequence
     window.addEventListener('load', () => {
       resize();
       animate();
 
-      // Park the title after the user perceives the center state
+      // Dock title into toolbar
       setTimeout(() => {
-        title.classList.add('parked');
-      }, 900);
+        bootTitle.classList.add('hidden');
+        toolbar.classList.add('active');
+      }, 1000);
     });
   </script>
 
