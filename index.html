@@ -381,7 +381,7 @@
       const earthMaterial = new THREE.MeshPhongMaterial({
         map: textureLoader.load('./textures/earth_day.jpg'),
         specular: 0x333333,
-        shininess: 18
+        shininess: 13
       });
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
@@ -392,7 +392,7 @@
         map: textureLoader.load('./textures/earth_night.jpg'),
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 0.5
+        opacity: 0.6
       });
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
