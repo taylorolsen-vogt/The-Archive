@@ -784,6 +784,7 @@
           label: "Present Day - 2026 CE",
           description: "The Anthropocene. Modern human civilization spans the globe. Technology accelerates. Climate change.",
           events: [
+            { name: "Boston, USA", location: "North America", lat: 42.3555, lon: -71.0565 },
             { name: "London, UK", location: "Europe", lat: 51.5, lon: -0.1 },
             { name: "Tokyo, Japan", location: "Asia", lat: 35.7, lon: 139.7 },
             { name: "New York, USA", location: "North America", lat: 40.7, lon: -74.0 },
@@ -806,7 +807,7 @@
         0.1,
         1000
       );
-      camera.position.z = 2.5;
+      camera.position.z = 3.5;
 
       renderer = new THREE.WebGLRenderer({ 
         canvas: earthCanvas,
@@ -1055,15 +1056,12 @@
       console.log('=== FOCUSING ON LOCATION ===');
       console.log('Input:', { lat, lon });
       
-      // Calculate the rotation needed to bring this point to the front
-      // We want to rotate the Earth so the point faces the camera (+Z direction)
+      // The Earth texture is rotated 90° in Three.js space
+      // Longitude 0 (Prime Meridian) appears at -90° rotation
+      // So we need to add 90° to our rotation
+      const targetRotY = -(lon + 90) * (Math.PI / 180);
       
-      // For longitude: rotate around Y axis
-      // Longitude 0 is already facing forward, so we rotate by -lon
-      const targetRotY = -lon * (Math.PI / 180);
-      
-      // For latitude: rotate around X axis  
-      // Positive lat should rotate down (negative X rotation)
+      // Latitude: positive should tilt down (negative X rotation)
       const targetRotX = -lat * (Math.PI / 180);
       
       console.log('Target rotation (radians):', { 
