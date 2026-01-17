@@ -147,9 +147,9 @@
       max-width: 1000px;
       height: 2px;
       background: linear-gradient(90deg, 
-        rgba(95,180,180,0.2), 
-        rgba(95,180,180,0.6), 
-        rgba(95,180,180,0.2)
+        rgba(77, 153, 204, 0.3), 
+        rgba(77, 153, 204, 0.8), 
+        rgba(77, 153, 204, 0.3)
       );
       position: relative;
     }
@@ -173,27 +173,27 @@
       appearance: none;
       width: 16px;
       height: 16px;
-      background: #5fb4b4;
+      background: #4d99cc;
       border: 2px solid white;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(95, 180, 180, 0.8);
+      box-shadow: 0 0 15px rgba(77, 153, 204, 0.8);
       transition: all 0.2s;
     }
 
     #timelineSlider::-webkit-slider-thumb:hover {
       transform: scale(1.2);
-      box-shadow: 0 0 25px rgba(95, 180, 180, 1);
+      box-shadow: 0 0 25px rgba(77, 153, 204, 1);
     }
 
     #timelineSlider::-moz-range-thumb {
       width: 16px;
       height: 16px;
-      background: #5fb4b4;
+      background: #4d99cc;
       border: 2px solid white;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(95, 180, 180, 0.8);
+      box-shadow: 0 0 15px rgba(77, 153, 204, 0.8);
     }
   </style>
 </head>
@@ -326,7 +326,7 @@
      * EARTH (Three.js)
      */
     const earthCanvas = document.getElementById('earthCanvas');
-    let scene, camera, renderer, earth, clouds, atmosphere;
+    let scene, camera, renderer, earth, atmosphere;
     let isDragging = false;
     let previousMouse = { x: 0, y: 0 };
     let rotationVelocity = { x: 0, y: 0 };
@@ -373,29 +373,18 @@
       // Load textures
       const textureLoader = new THREE.TextureLoader();
       
-      // Earth with day texture
-      const earthGeometry = new THREE.SphereGeometry(1, 128, 128);
+      // Earth with day texture (15% smaller)
+      const earthGeometry = new THREE.SphereGeometry(0.85, 128, 128);
       const earthMaterial = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('./textures/earth_day.jpg'),
+        map: textureLoader.load('./earth_day.jpg'),
         specular: 0x333333,
         shininess: 15
       });
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
 
-      // Clouds
-      const cloudsGeometry = new THREE.SphereGeometry(1.01, 64, 64);
-      const cloudsMaterial = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('./textures/earth_clouds.jpg'),
-        transparent: true,
-        opacity: 0.4,
-        depthWrite: false
-      });
-      clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
-      scene.add(clouds);
-
-      // Atmosphere glow
-      const atmosphereGeometry = new THREE.SphereGeometry(1.15, 64, 64);
+      // Atmosphere glow (adjusted for smaller earth)
+      const atmosphereGeometry = new THREE.SphereGeometry(0.98, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
         uniforms: {},
         vertexShader: `
@@ -484,13 +473,10 @@
       // Auto rotation when not dragging
       if (!isDragging) {
         earth.rotation.y += 0.0003;
-        clouds.rotation.y += 0.0004;
 
         // Apply drag momentum
         earth.rotation.x += rotationVelocity.x;
         earth.rotation.y += rotationVelocity.y;
-        clouds.rotation.x += rotationVelocity.x;
-        clouds.rotation.y += rotationVelocity.y;
         
         // Damping
         rotationVelocity.x *= 0.95;
