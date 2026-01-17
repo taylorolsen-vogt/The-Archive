@@ -1033,16 +1033,9 @@
     function focusOnLocation(lat, lon) {
       console.log('Focusing on:', lat, lon);
       
-      // Earth texture starts with 0° longitude at center (Prime Meridian facing forward)
-      // We need to rotate to bring the target lon/lat to center view
-      
-      // Y rotation: longitude (east/west)
-      // Positive lon = rotate Earth left (negative rotation)
-      // X rotation: latitude (north/south)  
-      // Positive lat = rotate Earth down (negative rotation)
-      
+      // The old math was closer - bring it back with adjustments
       const targetRotX = -(lat * Math.PI / 180);
-      const targetRotY = -(lon * Math.PI / 180);
+      const targetRotY = -(lon * Math.PI / 180) - Math.PI / 2;
       
       console.log('Target rotation:', targetRotX, targetRotY);
       
@@ -1057,34 +1050,30 @@
     function createPulseMarker(lat, lon) {
       console.log('Creating marker at:', lat, lon);
       
-      // Remove existing marker
+      // Remove existing marker and ring
       if (pulseMarker) {
         scene.remove(pulseMarker);
         if (pulseMarker.ring) scene.remove(pulseMarker.ring);
       }
       
-      // Convert lat/lon to 3D Cartesian coordinates on sphere
-      // Standard spherical coordinate conversion
-      const radius = 0.86; // Just above Earth surface
+      // Match the Earth's coordinate system
+      // Earth texture is oriented with Prime Meridian at -90° in Three.js coords
+      const radius = 0.86;
       
-      // Convert degrees to radians
       const latRad = lat * Math.PI / 180;
-      const lonRad = lon * Math.PI / 180;
+      const lonRad = (lon - 90) * Math.PI / 180; // Offset to match Earth texture orientation
       
-      // Spherical to Cartesian (standard formula)
-      // x = r * cos(lat) * sin(lon)
-      // y = r * sin(lat)
-      // z = r * cos(lat) * cos(lon)
-      const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+      // Convert to Cartesian (matching Three.js Y-up convention)
+      const x = radius * Math.cos(latRad) * Math.cos(lonRad);
       const y = radius * Math.sin(latRad);
-      const z = radius * Math.cos(latRad) * Math.cos(lonRad);
+      const z = -radius * Math.cos(latRad) * Math.sin(lonRad);
       
       console.log('Marker position:', x, y, z);
       
-      // Create pulsing marker
-      const geometry = new THREE.SphereGeometry(0.025, 16, 16);
+      // Create bright pulsing marker
+      const geometry = new THREE.SphereGeometry(0.03, 16, 16);
       const material = new THREE.MeshBasicMaterial({
-        color: 0xffee44,
+        color: 0xffee00,
         transparent: true,
         opacity: 1
       });
@@ -1093,42 +1082,52 @@
       scene.add(pulseMarker);
       
       // Add glow ring
-      const ringGeometry = new THREE.RingGeometry(0.03, 0.04, 32);
+      const ringGeometry = new THREE.RingGeometry(0.04, 0.05, 32);
       const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffee44,
+        color: 0xffee00,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.9,
         side: THREE.DoubleSide
       });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
       ring.position.copy(pulseMarker.position);
-      ring.lookAt(0, 0, 0);
+      
+      // Orient ring to face outward from Earth center
+      const normal = new THREE.Vector3(x, y, z).normalize();
+      ring.lookAt(normal.x * 2, normal.y * 2, normal.z * 2);
       scene.add(ring);
       pulseMarker.ring = ring;
       
-      // Pulse animation
+      // Robust pulse animation
       let pulseTime = 0;
+      let pulseActive = true;
+      
       const pulseInterval = setInterval(() => {
-        if (!pulseMarker) {
+        if (!pulseActive || !pulseMarker) {
           clearInterval(pulseInterval);
           return;
         }
         
         pulseTime += 0.1;
         const scale = 1 + Math.sin(pulseTime * 2.5) * 0.5;
-        const opacity = 0.9 + Math.sin(pulseTime * 2.5) * 0.1;
+        const opacity = 0.95 + Math.sin(pulseTime * 2.5) * 0.05;
         
-        pulseMarker.scale.set(scale, scale, scale);
-        pulseMarker.material.opacity = opacity;
+        if (pulseMarker && pulseMarker.material) {
+          pulseMarker.scale.set(scale, scale, scale);
+          pulseMarker.material.opacity = opacity;
+        }
         
-        const ringScale = 1 + Math.sin(pulseTime * 2.5) * 0.6;
-        ring.scale.set(ringScale, ringScale, 1);
-        ring.material.opacity = Math.max(0, 0.8 - (ringScale - 1) * 0.8);
+        if (ring && ring.material) {
+          const ringScale = 1 + Math.sin(pulseTime * 2.5) * 0.7;
+          ring.scale.set(ringScale, ringScale, 1);
+          ring.material.opacity = Math.max(0, 0.9 - (ringScale - 1) * 0.9);
+        }
         
         if (pulseTime > 10) {
+          pulseActive = false;
           clearInterval(pulseInterval);
-          scene.remove(pulseMarker);
-          scene.remove(ring);
+          if (pulseMarker) scene.remove(pulseMarker);
+          if (ring) scene.remove(ring);
           pulseMarker = null;
         }
       }, 50);
