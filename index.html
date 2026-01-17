@@ -525,7 +525,7 @@
         star.draw();
       }
 
-      // Rare shooting star (TESTING - increased frequency)
+      // Rare shooting star
       if (!shootingStar && Math.random() < 0.002) {
         shootingStar = {
           x: Math.random() * spaceCanvas.width,
@@ -592,7 +592,7 @@
       
       panelScene = new THREE.Scene();
       
-      const height = window.innerHeight - 48 - 120; // Subtract toolbar and timeline
+      const height = window.innerHeight - 48 - 120;
       
       panelCamera = new THREE.PerspectiveCamera(
         45,
@@ -611,9 +611,6 @@
       panelRenderer.setPixelRatio(window.devicePixelRatio);
       panelRenderer.setClearColor(0x000000, 0);
       
-      console.log('Panel renderer initialized:', 380, height);
-      
-      // Create atmospheric glow plane
       const geometry = new THREE.PlaneGeometry(4, 6);
       const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -631,34 +628,26 @@
           varying vec2 vUv;
           
           void main() {
-            // Create multiple glow layers
             vec2 center = vec2(0.0, 0.5);
             float dist = distance(vUv, center);
             
-            // Main glow
             float glow1 = 1.0 - smoothstep(0.0, 1.2, dist);
             glow1 = pow(glow1, 0.8);
             
-            // Inner bright glow
             float glow2 = 1.0 - smoothstep(0.0, 0.6, dist);
             glow2 = pow(glow2, 2.0);
             
-            // Edge glow from left
             float edgeGlow = 1.0 - smoothstep(0.0, 0.3, vUv.x);
             edgeGlow = pow(edgeGlow, 2.0);
             
-            // Combine glows
             float totalGlow = glow1 * 0.8 + glow2 * 1.2 + edgeGlow * 0.6;
             
-            // Subtle animated waves
             float wave1 = sin(vUv.y * 8.0 + time * 0.5) * 0.08;
             float wave2 = sin(vUv.y * 12.0 - time * 0.3) * 0.05;
             totalGlow += wave1 + wave2;
             
-            // Atmospheric blue-cyan color
             vec3 color = vec3(0.3, 0.6, 1.0);
             
-            // Much more visible
             gl_FragColor = vec4(color * totalGlow * 1.5, totalGlow * 0.85);
           }
         `,
@@ -670,7 +659,6 @@
       panelAtmosphere = new THREE.Mesh(geometry, material);
       panelScene.add(panelAtmosphere);
       
-      console.log('Panel atmosphere created');
       animatePanelAtmosphere();
     }
 
@@ -690,7 +678,6 @@
     let scene, camera, renderer, earth, atmosphere, nightLights;
     let isDragging = false;
     let previousMouse = { x: 0, y: 0 };
-    let rotationVelocity = { x: 0, y: 0 };
 
     const timelineData = {
       level: 'eons',
@@ -744,7 +731,7 @@
           events: [
             { name: "Dinosaurs Dominate", location: "Pangaea", lat: 10, lon: 0 },
             { name: "First Mammals", location: "Southern Pangaea", lat: -30, lon: 20 },
-            { name: "Asteroid Impact", location: "Chicxulub, Mexico", lat: 21, lon: -89 }
+            { name: "Asteroid Impact", location: "Chicxulub, Mexico", lat: 21.3, lon: -89.5 }
           ]
         },
         { 
@@ -796,12 +783,12 @@
           label: "Present Day - 2026 CE",
           description: "The Anthropocene. Modern human civilization spans the globe. Technology accelerates. Climate change.",
           events: [
-            { name: "London, UK (Test)", location: "Europe", lat: 51.5, lon: -0.1 },
-            { name: "Tokyo, Japan (Test)", location: "Asia", lat: 35.7, lon: 139.7 },
-            { name: "New York, USA (Test)", location: "North America", lat: 40.7, lon: -74.0 },
-            { name: "Sydney, Australia (Test)", location: "Australia", lat: -33.9, lon: 151.2 },
-            { name: "Digital Revolution", location: "Silicon Valley", lat: 37.4, lon: -122.1 },
-            { name: "Space Exploration", location: "Global", lat: 0, lon: 0 }
+            { name: "London, UK", location: "Europe", lat: 51.5, lon: -0.1 },
+            { name: "Tokyo, Japan", location: "Asia", lat: 35.7, lon: 139.7 },
+            { name: "New York, USA", location: "North America", lat: 40.7, lon: -74.0 },
+            { name: "Sydney, Australia", location: "Australia", lat: -33.9, lon: 151.2 },
+            { name: "Rio de Janeiro, Brazil", location: "South America", lat: -22.9, lon: -43.2 },
+            { name: "Cape Town, South Africa", location: "Africa", lat: -33.9, lon: 18.4 }
           ]
         }
       ]
@@ -839,7 +826,7 @@
       // Load textures
       const textureLoader = new THREE.TextureLoader();
       
-      // Earth with day texture (15% smaller)
+      // Earth with day texture
       const earthGeometry = new THREE.SphereGeometry(0.85, 128, 128);
       const earthMaterial = new THREE.MeshPhongMaterial({
         map: textureLoader.load('./textures/earth_day.jpg'),
@@ -849,7 +836,7 @@
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
 
-      // Night lights layer (only visible on dark side)
+      // Night lights layer
       const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
       const nightTexture = textureLoader.load('./textures/earth_night.jpg');
       const nightMaterial = new THREE.ShaderMaterial({
@@ -887,7 +874,7 @@
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
 
-      // Atmosphere glow (adjusted for smaller earth)
+      // Atmosphere glow
       const atmosphereGeometry = new THREE.SphereGeometry(0.98, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
         uniforms: {},
@@ -919,7 +906,7 @@
       earthCanvas.addEventListener('mouseup', onMouseUp);
       earthCanvas.addEventListener('wheel', onWheel);
 
-      // Timeline - add click to open panel
+      // Timeline
       const slider = document.getElementById('timelineSlider');
       slider.addEventListener('input', (e) => {
         const value = parseFloat(e.target.value);
@@ -948,7 +935,6 @@
       const deltaX = e.clientX - previousMouse.x;
       const deltaY = e.clientY - previousMouse.y;
       
-      // Direct rotation (no velocity/momentum)
       earth.rotation.y += deltaX * 0.005;
       earth.rotation.x += deltaY * 0.005;
       nightLights.rotation.y += deltaX * 0.005;
@@ -1030,45 +1016,71 @@
       document.getElementById('earthCanvas').classList.remove('panel-open');
     }
 
+    /**
+     * FIXED COORDINATE CONVERSION
+     * The key insight: Earth texture has (0,0) at the center of the map
+     * - Longitude 0 (Prime Meridian) is at texture center (u=0.5)
+     * - Latitude 0 (Equator) is at texture middle (v=0.5)
+     * - Three.js sphere starts with "front" at +Z, which corresponds to lon=0
+     */
+    function latLonToVector3(lat, lon, radius) {
+      // Convert to radians
+      const phi = (90 - lat) * (Math.PI / 180); // Polar angle from north pole
+      const theta = (lon + 180) * (Math.PI / 180); // Azimuthal angle
+      
+      // Spherical to Cartesian
+      const x = -radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.cos(phi);
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      
+      return new THREE.Vector3(x, y, z);
+    }
+
     function focusOnLocation(lat, lon) {
-      console.log('Focusing on:', lat, lon);
+      console.log('=== FOCUSING ON LOCATION ===');
+      console.log('Input:', { lat, lon });
       
-      // The old math was closer - bring it back with adjustments
-      const targetRotX = -(lat * Math.PI / 180);
-      const targetRotY = -(lon * Math.PI / 180) - Math.PI / 2;
+      // Calculate the rotation needed to bring this point to the front
+      // We want to rotate the Earth so the point faces the camera (+Z direction)
       
-      console.log('Target rotation:', targetRotX, targetRotY);
+      // For longitude: rotate around Y axis
+      // Longitude 0 is already facing forward, so we rotate by -lon
+      const targetRotY = -lon * (Math.PI / 180);
+      
+      // For latitude: rotate around X axis  
+      // Positive lat should rotate down (negative X rotation)
+      const targetRotX = -lat * (Math.PI / 180);
+      
+      console.log('Target rotation (radians):', { 
+        x: targetRotX, 
+        y: targetRotY,
+        xDeg: targetRotX * (180 / Math.PI),
+        yDeg: targetRotY * (180 / Math.PI)
+      });
       
       animateRotation(targetRotX, targetRotY);
       
-      // Create pulse marker after rotation
+      // Create marker after rotation completes
       setTimeout(() => createPulseMarker(lat, lon), 1600);
     }
 
     let pulseMarker = null;
 
     function createPulseMarker(lat, lon) {
-      console.log('Creating marker at:', lat, lon);
+      console.log('=== CREATING MARKER ===');
+      console.log('Location:', { lat, lon });
       
-      // Remove existing marker and ring
+      // Remove existing marker
       if (pulseMarker) {
         scene.remove(pulseMarker);
         if (pulseMarker.ring) scene.remove(pulseMarker.ring);
       }
       
-      // Match the Earth's coordinate system
-      // Earth texture is oriented with Prime Meridian at -90° in Three.js coords
-      const radius = 0.86;
+      // Get position on sphere surface
+      const radius = 0.86; // Slightly above Earth surface
+      const position = latLonToVector3(lat, lon, radius);
       
-      const latRad = lat * Math.PI / 180;
-      const lonRad = (lon - 90) * Math.PI / 180; // Offset to match Earth texture orientation
-      
-      // Convert to Cartesian (matching Three.js Y-up convention)
-      const x = radius * Math.cos(latRad) * Math.cos(lonRad);
-      const y = radius * Math.sin(latRad);
-      const z = -radius * Math.cos(latRad) * Math.sin(lonRad);
-      
-      console.log('Marker position:', x, y, z);
+      console.log('Marker 3D position:', position);
       
       // Create bright pulsing marker
       const geometry = new THREE.SphereGeometry(0.03, 16, 16);
@@ -1078,7 +1090,7 @@
         opacity: 1
       });
       pulseMarker = new THREE.Mesh(geometry, material);
-      pulseMarker.position.set(x, y, z);
+      pulseMarker.position.copy(position);
       scene.add(pulseMarker);
       
       // Add glow ring
@@ -1090,15 +1102,16 @@
         side: THREE.DoubleSide
       });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-      ring.position.copy(pulseMarker.position);
+      ring.position.copy(position);
       
       // Orient ring to face outward from Earth center
-      const normal = new THREE.Vector3(x, y, z).normalize();
-      ring.lookAt(normal.x * 2, normal.y * 2, normal.z * 2);
+      ring.lookAt(position.x * 2, position.y * 2, position.z * 2);
       scene.add(ring);
       pulseMarker.ring = ring;
       
-      // Robust pulse animation
+      console.log('Marker created successfully');
+      
+      // Animate pulse
       let pulseTime = 0;
       let pulseActive = true;
       
@@ -1142,7 +1155,7 @@
       function animate() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
         
         earth.rotation.x = startX + (targetX - startX) * eased;
         earth.rotation.y = startY + (targetY - startY) * eased;
@@ -1160,7 +1173,6 @@
     function animateEarth() {
       requestAnimationFrame(animateEarth);
 
-      // Auto rotation when not dragging
       if (!isDragging) {
         earth.rotation.y += 0.0003;
         nightLights.rotation.y += 0.0003;
@@ -1188,12 +1200,11 @@
       resizeSpace();
       animateStars();
       initEarth();
+      initPanelAtmosphere();
 
-      // Title animation and Earth fade-in
       setTimeout(() => {
         bootTitle.classList.add('hidden');
         toolbar.classList.add('active');
-        // Fade in Earth as title moves to corner
         earthCanvas.classList.add('visible');
       }, 1000);
     });
