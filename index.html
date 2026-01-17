@@ -941,6 +941,19 @@
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
 
+      // Moon - accurate size (27% of Earth)
+      const moonGeometry = new THREE.SphereGeometry(0.23, 64, 64);
+      const moonMaterial = new THREE.MeshPhongMaterial({
+        map: textureLoader.load('./textures/moon.jpg'),
+        specular: 0x111111,
+        shininess: 5
+      });
+      const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+      // Position ~2.5 Earth diameters away (compressed for visibility)
+      moon.position.set(4.25, 0, 0); // 2.5 * (0.85 * 2) = 4.25
+      scene.add(moon);
+      window.moon = moon; // Make accessible for orbit animation
+
       // Night lights layer
       const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
       const nightTexture = textureLoader.load('./textures/earth_night.jpg');
