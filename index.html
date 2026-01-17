@@ -1034,15 +1034,12 @@
 
     /**
      * FIXED COORDINATE CONVERSION
-     * The key insight: Earth texture has (0,0) at the center of the map
-     * - Longitude 0 (Prime Meridian) is at texture center (u=0.5)
-     * - Latitude 0 (Equator) is at texture middle (v=0.5)
-     * - Three.js sphere starts with "front" at +Z, which corresponds to lon=0
+     * Need to match the Earth texture's orientation in Three.js
      */
     function latLonToVector3(lat, lon, radius) {
       // Convert to radians
       const phi = (90 - lat) * (Math.PI / 180); // Polar angle from north pole
-      const theta = (lon + 180) * (Math.PI / 180); // Azimuthal angle
+      const theta = (lon - 90 + 180) * (Math.PI / 180); // Azimuthal angle with correction
       
       // Spherical to Cartesian
       const x = -radius * Math.sin(phi) * Math.cos(theta);
@@ -1056,16 +1053,11 @@
       console.log('=== FOCUSING ON LOCATION ===');
       console.log('Input:', { lat, lon });
       
-      // The Earth texture is rotated 90° in Three.js space
-      // Try subtracting 90° instead
-      const targetRotY = -(lon - 90) * (Math.PI / 180);
-      
-      // Latitude: positive should tilt down (negative X rotation)
+      // Try no offset first - just direct rotation
+      const targetRotY = -lon * (Math.PI / 180);
       const targetRotX = -lat * (Math.PI / 180);
       
-      console.log('Target rotation (radians):', { 
-        x: targetRotX, 
-        y: targetRotY,
+      console.log('Target rotation (degrees):', { 
         xDeg: targetRotX * (180 / Math.PI),
         yDeg: targetRotY * (180 / Math.PI)
       });
