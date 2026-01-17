@@ -121,7 +121,7 @@
     }
 
     /* ===== TIMELINE ===== */
-    #timeline {
+      #timeline {
       position: fixed;
       bottom: 0;
       left: 0;
@@ -142,6 +142,11 @@
       justify-content: flex-end;
       padding-bottom: 30px;
       gap: 15px;
+      pointer-events: none;
+    }
+
+    #timeline > * {
+      pointer-events: all;
     }
 
     #timelineDate {
@@ -175,6 +180,7 @@
       background: transparent;
       cursor: pointer;
       z-index: 10;
+      pointer-events: all;
     }
 
     #timelineSlider::-webkit-slider-thumb {
@@ -253,6 +259,7 @@
 
     let stars = [];
     let time = 0;
+    let shootingStar = null;
 
     function resizeSpace() {
       spaceCanvas.width = window.innerWidth;
@@ -264,6 +271,7 @@
       constructor() {
         this.x = Math.random() * spaceCanvas.width;
         this.y = Math.random() * spaceCanvas.height;
+        this.isShootingStar = false;
 
         const layer = Math.random();
 
@@ -326,6 +334,51 @@
       for (const star of stars) {
         star.update();
         star.draw();
+      }
+
+      // Rare shooting star (very low probability)
+      if (!shootingStar && Math.random() < 0.00001) {
+        shootingStar = {
+          x: Math.random() * spaceCanvas.width,
+          y: Math.random() * spaceCanvas.height * 0.6,
+          length: Math.random() * 80 + 40,
+          angle: Math.random() * Math.PI / 4 + Math.PI / 6,
+          speed: Math.random() * 8 + 6,
+          opacity: 1,
+          life: 0
+        };
+      }
+
+      // Draw shooting star
+      if (shootingStar) {
+        shootingStar.life += 0.05;
+        shootingStar.x += Math.cos(shootingStar.angle) * shootingStar.speed;
+        shootingStar.y += Math.sin(shootingStar.angle) * shootingStar.speed;
+        shootingStar.opacity = Math.max(0, 1 - shootingStar.life);
+
+        if (shootingStar.opacity > 0) {
+          const gradient = spaceCtx.createLinearGradient(
+            shootingStar.x,
+            shootingStar.y,
+            shootingStar.x - Math.cos(shootingStar.angle) * shootingStar.length,
+            shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length
+          );
+          gradient.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity * 0.9})`);
+          gradient.addColorStop(0.5, `rgba(200, 220, 255, ${shootingStar.opacity * 0.5})`);
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          spaceCtx.strokeStyle = gradient;
+          spaceCtx.lineWidth = 1.5;
+          spaceCtx.beginPath();
+          spaceCtx.moveTo(shootingStar.x, shootingStar.y);
+          spaceCtx.lineTo(
+            shootingStar.x - Math.cos(shootingStar.angle) * shootingStar.length,
+            shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length
+          );
+          spaceCtx.stroke();
+        } else {
+          shootingStar = null;
+        }
       }
 
       requestAnimationFrame(animateStars);
@@ -435,9 +488,17 @@
       earthCanvas.addEventListener('mouseup', onMouseUp);
       earthCanvas.addEventListener('wheel', onWheel);
 
-      // Timeline
-      document.getElementById('timelineSlider').addEventListener('input', (e) => {
+      // Timeline - add hover listener
+      const slider = document.getElementById('timelineSlider');
+      slider.addEventListener('input', (e) => {
         updateTimeline(parseFloat(e.target.value));
+      });
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDragging) {
+          const rect = slider.getBoundingClientRect();
+          const value = ((e.clientX - rect.left) / rect.width) * 100;
+          updateTimeline(value, true);
+        }
       });
 
       animateEarth();
@@ -473,7 +534,7 @@
       camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
     }
 
-    function updateTimeline(value) {
+    function updateTimeline(value, isHover = false) {
       const dateDisplay = document.getElementById('timelineDate');
       
       let closestPoint = timelinePoints[0];
@@ -487,7 +548,11 @@
         }
       }
       
-      dateDisplay.textContent = closestPoint.label;
+      // Only update text on hover or actual change
+      if (!isHover || Math.abs(value - parseFloat(document.getElementById('timelineSlider').value)) > 2) {
+        dateDisplay.textContent = closestPoint.label;
+        dateDisplay.style.opacity = isHover ? '0.7' : '0.9';
+      }
     }
 
     function animateEarth() {
