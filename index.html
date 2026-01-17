@@ -189,7 +189,7 @@
     .panel-header {
       padding: 30px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(0, 0, 0, 0.4);
     }
 
     .panel-title {
@@ -209,6 +209,7 @@
 
     .panel-content {
       padding: 30px;
+      background: rgba(0, 0, 0, 0.5);
     }
 
     .panel-section {
@@ -226,7 +227,7 @@
 
     .panel-description {
       line-height: 1.7;
-      opacity: 0.20;
+      opacity: 0.95;
       font-size: 0.95em;
       color: rgba(255, 255, 255, 0.9);
     }
@@ -334,7 +335,7 @@
       top: 50%;
       left: 0;
       width: 100%;
-      height: 2px;
+      height: 40px;
       transform: translateY(-50%);
       -webkit-appearance: none;
       appearance: none;
@@ -347,16 +348,16 @@
     #timelineSlider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 0;
-      height: 0;
+      width: 40px;
+      height: 40px;
       background: transparent;
       border: none;
       cursor: pointer;
     }
 
     #timelineSlider::-moz-range-thumb {
-      width: 0;
-      height: 0;
+      width: 40px;
+      height: 40px;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -908,11 +909,20 @@
 
       // Timeline
       const slider = document.getElementById('timelineSlider');
+      
+      // Update on drag
       slider.addEventListener('input', (e) => {
         const value = parseFloat(e.target.value);
         updateTimeline(value);
+      });
+      
+      // Open panel on click/release
+      slider.addEventListener('mouseup', (e) => {
+        const value = parseFloat(slider.value);
         openPanelForTimelineValue(value);
       });
+      
+      // Preview on hover
       slider.addEventListener('mousemove', (e) => {
         if (!isDragging) {
           const rect = slider.getBoundingClientRect();
