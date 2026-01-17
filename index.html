@@ -1103,8 +1103,8 @@
       
       coordTarget.textContent = `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
       
-      // Try 180 offset instead of 90
-      const targetRotY = -(lon + 180) * (Math.PI / 180);
+      // Try 135 offset (actually between 90 and 180 this time!)
+      const targetRotY = -(lon + 135) * (Math.PI / 180);
       const targetRotX = -lat * (Math.PI / 180);
       
       const rotYDeg = (targetRotY * (180 / Math.PI)).toFixed(1);
