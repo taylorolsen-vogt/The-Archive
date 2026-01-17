@@ -472,15 +472,15 @@
 
       // Auto rotation when not dragging
       if (!isDragging) {
-        earth.rotation.y += 0.003;
+        earth.rotation.y += 0.03;
 
         // Apply drag momentum
         earth.rotation.x += rotationVelocity.x;
         earth.rotation.y += rotationVelocity.y;
         
         // Damping
-        rotationVelocity.x *= 0.02;
-        rotationVelocity.y *= 0.02;
+        rotationVelocity.x *= 0.2;
+        rotationVelocity.y *= 0.2;
       }
 
       renderer.render(scene, camera);
