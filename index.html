@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>The Archive</title>
 
   <!-- Major Mono Display (for A / T glyphs) -->
@@ -17,65 +17,40 @@
       margin: 0;
       width: 100%;
       height: 100%;
-      background: black;
+      background: #000;
       overflow: hidden;
 
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: #fff;
+
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: geometricPrecision;
     }
 
-    /* ===== EARTH ===== */
-    #earth {
+    canvas {
       position: fixed;
       inset: 0;
-      background: url("earth.jpg") center center / cover no-repeat;
-      opacity: 0;
-      transition: opacity 2.2s ease;
+      display: block;
       z-index: 0;
-    }
-
-    #earth.visible {
-      opacity: 1;
     }
 
     /* ===== TITLE ===== */
     #title {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-
+      inset: 0;
       display: flex;
       align-items: center;
+      justify-content: center;
 
       font-size: 30px;
       letter-spacing: 0.35em;
       font-weight: 300;
-      color: white;
 
       z-index: 1;
-
-      transition:
-        top 1.6s ease,
-        left 1.6s ease,
-        transform 1.6s ease,
-        font-size 1.6s ease,
-        letter-spacing 1.6s ease;
+      pointer-events: none;
     }
 
-    /* Final parked position */
-    #title.parked {
-      top: 28px;
-      left: 36px;
-      transform: none;
-
-      font-size: 16px;
-      letter-spacing: 0.32em;
-    }
-
-    /* Instrument glyphs */
     .mono {
       font-family: 'Major Mono Display', monospace;
       font-weight: 400;
@@ -85,10 +60,10 @@
 
 <body>
 
-  <!-- Earth layer -->
-  <div id="earth"></div>
+  <!-- Star Field -->
+  <canvas id="spaceCanvas"></canvas>
 
-  <!-- Title -->
+  <!-- Archive Title -->
   <div id="title">
     <span class="mono">T</span>HE
     &nbsp;
@@ -96,20 +71,103 @@
   </div>
 
   <script>
-    const earth = document.getElementById("earth");
-    const title = document.getElementById("title");
+    /**
+     * Sub-Perceptual Star Field
+     * Instrument-grade: no loops, no rhythm, no spectacle.
+     */
 
-    window.addEventListener("load", () => {
-      // Fade Earth in
-      setTimeout(() => {
-        earth.classList.add("visible");
-      }, 600);
+    const canvas = document.getElementById('spaceCanvas');
+    const ctx = canvas.getContext('2d');
 
-      // Move title to instrument position
-      setTimeout(() => {
-        title.classList.add("parked");
-      }, 1200);
-    });
+    let stars = [];
+    let time = 0;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      createStars();
+    }
+
+    class Star {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+
+        const layer = Math.random();
+
+        if (layer > 0.97) {
+          this.size = Math.random() * 0.9 + 0.6;
+          this.baseOpacity = Math.random() * 0.35 + 0.35;
+          this.glimmer = 0.02;
+        } else if (layer > 0.75) {
+          this.size = Math.random() * 0.5 + 0.2;
+          this.baseOpacity = Math.random() * 0.25 + 0.15;
+          this.glimmer = 0.0;
+        } else {
+          this.size = Math.random() * 0.35 + 0.1;
+          this.baseOpacity = Math.random() * 0.15 + 0.05;
+          this.glimmer = 0.0;
+        }
+
+        this.phase = Math.random() * Math.PI * 2;
+        this.frequency = Math.random() * 0.008 + 0.002;
+        this.amplitude = Math.random() * 0.12 + 0.03;
+        this.drift = Math.random() * 0.0003 + 0.0001;
+
+        this.color = '#ffffff';
+        this.opacity = this.baseOpacity;
+      }
+
+      update() {
+        this.phase += this.drift;
+
+        const breath = Math.sin(time * this.frequency + this.phase);
+        const noise = (Math.random() - 0.5) * this.glimmer;
+
+        this.opacity = this.baseOpacity + (breath * this.amplitude) + noise;
+
+        if (this.opacity < 0.02) this.opacity = 0.02;
+        if (this.opacity > 1.0) this.opacity = 1.0;
+      }
+
+      draw() {
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function createStars() {
+      stars = [];
+      const count = Math.floor((canvas.width * canvas.height) / 4500);
+
+      for (let i = 0; i < count; i++) {
+        stars.push(new Star());
+      }
+    }
+
+    function animate() {
+      time += 0.0015; // extremely slow temporal evolution
+
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (const star of stars) {
+        star.update();
+        star.draw();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resize);
+
+    resize();
+    animate();
   </script>
 
 </body>
