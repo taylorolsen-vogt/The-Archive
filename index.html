@@ -875,8 +875,8 @@
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
 
-      // Atmosphere glow
-      const atmosphereGeometry = new THREE.SphereGeometry(0.98, 64, 64);
+      // Atmosphere glow - softer and more natural
+      const atmosphereGeometry = new THREE.SphereGeometry(1.0, 64, 64);
       const atmosphereMaterial = new THREE.ShaderMaterial({
         uniforms: {},
         vertexShader: `
@@ -889,9 +889,14 @@
         fragmentShader: `
           varying vec3 vNormal;
           void main() {
-            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 1.8);
-            vec3 atmosphere = vec3(0.3, 0.6, 1.0) * intensity;
-            gl_FragColor = vec4(atmosphere, 1.0) * intensity * 1.5;
+            // Softer falloff for more natural glow
+            float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+            
+            // More natural blue atmosphere color
+            vec3 atmosphere = vec3(0.4, 0.7, 0.95) * intensity;
+            
+            // Gentler overall intensity
+            gl_FragColor = vec4(atmosphere, 1.0) * intensity * 0.8;
           }
         `,
         side: THREE.BackSide,
