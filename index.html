@@ -585,11 +585,18 @@
       const panelCanvas = document.getElementById('panelCanvas');
       const panel = document.getElementById('infoPanel');
       
+      if (!panelCanvas || !panel) {
+        console.error('Panel elements not found');
+        return;
+      }
+      
       panelScene = new THREE.Scene();
+      
+      const height = window.innerHeight - 48 - 120; // Subtract toolbar and timeline
       
       panelCamera = new THREE.PerspectiveCamera(
         45,
-        380 / panel.offsetHeight,
+        380 / height,
         0.1,
         10
       );
@@ -600,8 +607,11 @@
         alpha: true,
         antialias: true
       });
-      panelRenderer.setSize(380, panel.offsetHeight);
+      panelRenderer.setSize(380, height);
       panelRenderer.setPixelRatio(window.devicePixelRatio);
+      panelRenderer.setClearColor(0x000000, 0);
+      
+      console.log('Panel renderer initialized:', 380, height);
       
       // Create atmospheric glow plane
       const geometry = new THREE.PlaneGeometry(4, 6);
@@ -621,30 +631,46 @@
           varying vec2 vUv;
           
           void main() {
+            // Create multiple glow layers
             vec2 center = vec2(0.0, 0.5);
             float dist = distance(vUv, center);
             
-            // Radial glow from left edge
-            float glow = 1.0 - smoothstep(0.0, 1.5, dist);
-            glow = pow(glow, 1.5);
+            // Main glow
+            float glow1 = 1.0 - smoothstep(0.0, 1.2, dist);
+            glow1 = pow(glow1, 0.8);
             
-            // Subtle movement
-            float wave = sin(vUv.y * 10.0 + time * 0.5) * 0.03;
-            glow += wave;
+            // Inner bright glow
+            float glow2 = 1.0 - smoothstep(0.0, 0.6, dist);
+            glow2 = pow(glow2, 2.0);
             
-            // Atmospheric blue color
+            // Edge glow from left
+            float edgeGlow = 1.0 - smoothstep(0.0, 0.3, vUv.x);
+            edgeGlow = pow(edgeGlow, 2.0);
+            
+            // Combine glows
+            float totalGlow = glow1 * 0.8 + glow2 * 1.2 + edgeGlow * 0.6;
+            
+            // Subtle animated waves
+            float wave1 = sin(vUv.y * 8.0 + time * 0.5) * 0.08;
+            float wave2 = sin(vUv.y * 12.0 - time * 0.3) * 0.05;
+            totalGlow += wave1 + wave2;
+            
+            // Atmospheric blue-cyan color
             vec3 color = vec3(0.3, 0.6, 1.0);
             
-            gl_FragColor = vec4(color * glow * 0.4, glow * 0.3);
+            // Much more visible
+            gl_FragColor = vec4(color * totalGlow * 1.5, totalGlow * 0.85);
           }
         `,
         transparent: true,
-        blending: THREE.AdditiveBlending
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
       });
       
       panelAtmosphere = new THREE.Mesh(geometry, material);
       panelScene.add(panelAtmosphere);
       
+      console.log('Panel atmosphere created');
       animatePanelAtmosphere();
     }
 
@@ -1147,4 +1173,4 @@
   </script>
 
 </body>
-</html>
+</html>f
