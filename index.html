@@ -1035,11 +1035,12 @@
     /**
      * FIXED COORDINATE CONVERSION
      * Need to match the Earth texture's orientation in Three.js
+     * Earth texture starts showing Americas, so we need +90° offset
      */
     function latLonToVector3(lat, lon, radius) {
-      // Convert to radians
+      // Convert to radians with +90° longitude offset to match texture
       const phi = (90 - lat) * (Math.PI / 180); // Polar angle from north pole
-      const theta = (lon - 90 + 180) * (Math.PI / 180); // Azimuthal angle with correction
+      const theta = (lon + 90 + 180) * (Math.PI / 180); // Azimuthal angle with correction
       
       // Spherical to Cartesian
       const x = -radius * Math.sin(phi) * Math.cos(theta);
@@ -1053,8 +1054,10 @@
       console.log('=== FOCUSING ON LOCATION ===');
       console.log('Input:', { lat, lon });
       
-      // Try no offset first - just direct rotation
-      const targetRotY = -lon * (Math.PI / 180);
+      // Earth starts showing Americas (~90°W)
+      // To show a location, we need to rotate FROM that starting point
+      // So we add 90° to compensate for the initial orientation
+      const targetRotY = -(lon + 90) * (Math.PI / 180);
       const targetRotX = -lat * (Math.PI / 180);
       
       console.log('Target rotation (degrees):', { 
