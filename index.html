@@ -381,7 +381,7 @@
       const earthMaterial = new THREE.MeshPhongMaterial({
         map: textureLoader.load('./textures/earth_day.jpg'),
         specular: 0x333333,
-        shininess: 11
+        shininess: 15
       });
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
@@ -392,7 +392,7 @@
         map: textureLoader.load('./textures/earth_night.jpg'),
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 0.8
+        opacity: 0.3
       });
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
@@ -448,8 +448,11 @@
       const deltaX = e.clientX - previousMouse.x;
       const deltaY = e.clientY - previousMouse.y;
       
-      rotationVelocity.x = deltaY * 0.005;
-      rotationVelocity.y = deltaX * 0.005;
+      // Direct rotation (no velocity/momentum)
+      earth.rotation.y += deltaX * 0.005;
+      earth.rotation.x += deltaY * 0.005;
+      nightLights.rotation.y += deltaX * 0.005;
+      nightLights.rotation.x += deltaY * 0.005;
       
       previousMouse = { x: e.clientX, y: e.clientY };
     }
