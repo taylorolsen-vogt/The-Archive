@@ -796,9 +796,12 @@
           label: "Present Day - 2026 CE",
           description: "The Anthropocene. Modern human civilization spans the globe. Technology accelerates. Climate change.",
           events: [
-            { name: "Digital Revolution", location: "Silicon Valley", lat: 37, lon: -122 },
-            { name: "Space Exploration", location: "Global", lat: 0, lon: 0 },
-            { name: "Climate Crisis", location: "Global", lat: 0, lon: 0 }
+            { name: "London, UK (Test)", location: "Europe", lat: 51.5, lon: -0.1 },
+            { name: "Tokyo, Japan (Test)", location: "Asia", lat: 35.7, lon: 139.7 },
+            { name: "New York, USA (Test)", location: "North America", lat: 40.7, lon: -74.0 },
+            { name: "Sydney, Australia (Test)", location: "Australia", lat: -33.9, lon: 151.2 },
+            { name: "Digital Revolution", location: "Silicon Valley", lat: 37.4, lon: -122.1 },
+            { name: "Space Exploration", location: "Global", lat: 0, lon: 0 }
           ]
         }
       ]
@@ -1028,42 +1031,60 @@
     }
 
     function focusOnLocation(lat, lon) {
-      // Correct rotation to show location at center
-      // Earth starts with Africa centered (rotation 0,0)
-      // Positive latitude = north, negative = south
-      // Positive longitude = east, negative = west
+      console.log('Focusing on:', lat, lon);
+      
+      // Earth texture starts with 0° longitude at center (Prime Meridian facing forward)
+      // We need to rotate to bring the target lon/lat to center view
+      
+      // Y rotation: longitude (east/west)
+      // Positive lon = rotate Earth left (negative rotation)
+      // X rotation: latitude (north/south)  
+      // Positive lat = rotate Earth down (negative rotation)
       
       const targetRotX = -(lat * Math.PI / 180);
-      const targetRotY = -(lon * Math.PI / 180) - Math.PI / 2;
+      const targetRotY = -(lon * Math.PI / 180);
+      
+      console.log('Target rotation:', targetRotX, targetRotY);
       
       animateRotation(targetRotX, targetRotY);
       
       // Create pulse marker after rotation
-      setTimeout(() => createPulseMarker(lat, lon), 1500);
+      setTimeout(() => createPulseMarker(lat, lon), 1600);
     }
 
     let pulseMarker = null;
 
     function createPulseMarker(lat, lon) {
+      console.log('Creating marker at:', lat, lon);
+      
       // Remove existing marker
       if (pulseMarker) {
         scene.remove(pulseMarker);
+        if (pulseMarker.ring) scene.remove(pulseMarker.ring);
       }
       
-      // Convert lat/lon to 3D position on sphere surface
-      // Three.js sphere: Y is up, X/Z are horizontal plane
-      const radius = 0.855;
-      const phi = (90 - lat) * (Math.PI / 180); // Latitude to phi (0 at north pole)
-      const theta = (lon + 90) * (Math.PI / 180); // Longitude to theta (start at 0°)
+      // Convert lat/lon to 3D Cartesian coordinates on sphere
+      // Standard spherical coordinate conversion
+      const radius = 0.86; // Just above Earth surface
       
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.cos(phi);
-      const z = radius * Math.sin(phi) * Math.sin(theta);
+      // Convert degrees to radians
+      const latRad = lat * Math.PI / 180;
+      const lonRad = lon * Math.PI / 180;
+      
+      // Spherical to Cartesian (standard formula)
+      // x = r * cos(lat) * sin(lon)
+      // y = r * sin(lat)
+      // z = r * cos(lat) * cos(lon)
+      const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+      const y = radius * Math.sin(latRad);
+      const z = radius * Math.cos(latRad) * Math.cos(lonRad);
+      
+      console.log('Marker position:', x, y, z);
       
       // Create pulsing marker
-      const geometry = new THREE.SphereGeometry(0.02, 16, 16);
+      const geometry = new THREE.SphereGeometry(0.025, 16, 16);
       const material = new THREE.MeshBasicMaterial({
-        color: 0xffdd44,
+        color: 0xffee44,
         transparent: true,
         opacity: 1
       });
@@ -1072,32 +1093,39 @@
       scene.add(pulseMarker);
       
       // Add glow ring
-      const ringGeometry = new THREE.RingGeometry(0.025, 0.03, 32);
+      const ringGeometry = new THREE.RingGeometry(0.03, 0.04, 32);
       const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffdd44,
+        color: 0xffee44,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.8,
         side: THREE.DoubleSide
       });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
       ring.position.copy(pulseMarker.position);
       ring.lookAt(0, 0, 0);
       scene.add(ring);
+      pulseMarker.ring = ring;
       
       // Pulse animation
       let pulseTime = 0;
       const pulseInterval = setInterval(() => {
-        pulseTime += 0.08;
-        const scale = 1 + Math.sin(pulseTime * 2) * 0.4;
-        const opacity = 0.9 + Math.sin(pulseTime * 2) * 0.1;
+        if (!pulseMarker) {
+          clearInterval(pulseInterval);
+          return;
+        }
+        
+        pulseTime += 0.1;
+        const scale = 1 + Math.sin(pulseTime * 2.5) * 0.5;
+        const opacity = 0.9 + Math.sin(pulseTime * 2.5) * 0.1;
+        
         pulseMarker.scale.set(scale, scale, scale);
         pulseMarker.material.opacity = opacity;
         
-        const ringScale = 1 + Math.sin(pulseTime * 2) * 0.5;
+        const ringScale = 1 + Math.sin(pulseTime * 2.5) * 0.6;
         ring.scale.set(ringScale, ringScale, 1);
-        ring.material.opacity = 0.6 - (ringScale - 1) * 0.5;
+        ring.material.opacity = Math.max(0, 0.8 - (ringScale - 1) * 0.8);
         
-        if (pulseTime > 8) {
+        if (pulseTime > 10) {
           clearInterval(pulseInterval);
           scene.remove(pulseMarker);
           scene.remove(ring);
@@ -1173,4 +1201,4 @@
   </script>
 
 </body>
-</html>f
+</html>
