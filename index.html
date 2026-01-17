@@ -1074,18 +1074,20 @@
     }
 
     /**
-     * FIXED COORDINATE CONVERSION
-     * Matching the rotation formula: -(lon + 90)
+     * COORDINATE CONVERSION FOR MARKER PLACEMENT
+     * Places marker on Earth's surface at given lat/lon
+     * Must account for how the Earth mesh is oriented in Three.js
      */
     function latLonToVector3(lat, lon, radius) {
-      // Convert to radians matching rotation
-      const phi = (90 - lat) * (Math.PI / 180); // Polar angle from north pole
-      const theta = -(lon + 90) * (Math.PI / 180); // Match Y rotation formula
+      // Standard spherical to cartesian
+      const phi = (90 - lat) * (Math.PI / 180); // Angle from north pole
+      const theta = (lon) * (Math.PI / 180); // Longitude angle
       
-      // Spherical to Cartesian (standard conversion)
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const z = radius * Math.sin(phi) * Math.sin(theta);
+      // Three.js uses Z-up for spheres by default, but we need Y-up
+      // Standard sphere mapping for Three.js with Y-up
+      const x = -radius * Math.sin(phi) * Math.sin(theta);
       const y = radius * Math.cos(phi);
+      const z = radius * Math.sin(phi) * Math.cos(theta);
       
       return new THREE.Vector3(x, y, z);
     }
@@ -1101,9 +1103,8 @@
       
       coordTarget.textContent = `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
       
-      // New approach: Earth starts at 90°W, camera looks at 0° rotation
-      // To center longitude X, we need to rotate: -(X + 90)
-      const targetRotY = -(lon + 90) * (Math.PI / 180);
+      // Try 180 offset instead of 90
+      const targetRotY = -(lon + 180) * (Math.PI / 180);
       const targetRotX = -lat * (Math.PI / 180);
       
       const rotYDeg = (targetRotY * (180 / Math.PI)).toFixed(1);
