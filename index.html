@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <title>The Archive</title>
 
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='90' font-family='Major Mono Display, monospace'>A</text></svg>">
+  <!-- Favicon - Triangle from Major Mono Display A -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,20 80,80 20,80' fill='%23fff'/></svg>">
 
   <!-- Major Mono Display (for A / T glyphs) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -355,7 +355,7 @@
         0.1,
         1000
       );
-      camera.position.z = 2.5;
+      camera.position.z = 3.2;
 
       renderer = new THREE.WebGLRenderer({ 
         canvas: earthCanvas,
@@ -392,7 +392,7 @@
         map: textureLoader.load('./textures/earth_night.jpg'),
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 1.5
+        opacity: 0.8
       });
       nightLights = new THREE.Mesh(nightGeometry, nightMaterial);
       scene.add(nightLights);
