@@ -38,10 +38,12 @@
     /* ===== TITLE ===== */
     #title {
       position: fixed;
-      inset: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
       display: flex;
       align-items: center;
-      justify-content: center;
 
       font-size: 30px;
       letter-spacing: 0.35em;
@@ -49,6 +51,23 @@
 
       z-index: 1;
       pointer-events: none;
+
+      transition:
+        top 1.8s ease,
+        left 1.8s ease,
+        transform 1.8s ease,
+        font-size 1.8s ease,
+        letter-spacing 1.8s ease;
+    }
+
+    /* Parked instrument label */
+    #title.parked {
+      top: 22px;
+      left: 28px;
+      transform: none;
+
+      font-size: 14px;
+      letter-spacing: 0.32em;
     }
 
     .mono {
@@ -73,11 +92,12 @@
   <script>
     /**
      * Sub-Perceptual Star Field
-     * Instrument-grade: no loops, no rhythm, no spectacle.
+     * Instrument-grade: non-synchronous, non-periodic, barely evolving.
      */
 
     const canvas = document.getElementById('spaceCanvas');
     const ctx = canvas.getContext('2d');
+    const title = document.getElementById('title');
 
     let stars = [];
     let time = 0;
@@ -133,7 +153,6 @@
       draw() {
         ctx.globalAlpha = this.opacity;
         ctx.fillStyle = this.color;
-
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
@@ -142,15 +161,13 @@
 
     function createStars() {
       stars = [];
-      const count = Math.floor((canvas.width * canvas.height) / 4500);
-
-      for (let i = 0; i < count; i++) {
-        stars.push(new Star());
-      }
+      // Slightly denser than before (≈ +18%)
+      const count = Math.floor((canvas.width * canvas.height) / 3800);
+      for (let i = 0; i < count; i++) stars.push(new Star());
     }
 
     function animate() {
-      time += 0.0015; // extremely slow temporal evolution
+      time += 0.0015; // extremely slow evolution
 
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#000';
@@ -166,8 +183,16 @@
 
     window.addEventListener('resize', resize);
 
-    resize();
-    animate();
+    // Boot sequence
+    window.addEventListener('load', () => {
+      resize();
+      animate();
+
+      // Park the title after the user perceives the center state
+      setTimeout(() => {
+        title.classList.add('parked');
+      }, 900);
+    });
   </script>
 
 </body>
