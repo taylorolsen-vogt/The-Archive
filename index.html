@@ -949,12 +949,14 @@
         shininess: 5
       });
       const moon = new THREE.Mesh(moonGeometry, moonMaterial);
-      // Position to the right and slightly forward to be visible
-      moon.position.set(3.0, 0.3, 1.0);
+      // Position Moon to upper-right where it's clearly visible
+      // Closer for now (we'll push it out once orbit works)
+      moon.position.set(2.0, 1.2, 0.5);
       scene.add(moon);
       window.moon = moon; // Make accessible for orbit animation
       
       console.log('Moon added at position:', moon.position);
+      console.log('Moon in scene:', scene.children.includes(moon));
 
       // Night lights layer
       const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
@@ -1367,6 +1369,20 @@
       if (!isDragging) {
         earth.rotation.y += 0.0003;
         nightLights.rotation.y += 0.0003;
+      }
+
+      // Moon orbital motion (slow 2D orbit, always on screen)
+      if (window.moon) {
+        const time = Date.now() * 0.0001; // Very slow rotation
+        const orbitRadius = 2.2; // Distance from Earth center
+        
+        // Circular motion in X-Y plane (screen space)
+        window.moon.position.x = Math.cos(time) * orbitRadius;
+        window.moon.position.y = Math.sin(time) * orbitRadius;
+        window.moon.position.z = 0.5; // Slightly forward of Earth
+        
+        // Rotate Moon on its axis slowly
+        window.moon.rotation.y += 0.0002;
       }
 
       renderer.render(scene, camera);
