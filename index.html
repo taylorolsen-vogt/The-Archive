@@ -326,7 +326,7 @@
      * EARTH (Three.js)
      */
     const earthCanvas = document.getElementById('earthCanvas');
-    let scene, camera, renderer, earth, atmosphere;
+    let scene, camera, renderer, earth, atmosphere, nightLights;
     let isDragging = false;
     let previousMouse = { x: 0, y: 0 };
     let rotationVelocity = { x: 0, y: 0 };
@@ -376,7 +376,7 @@
       // Earth with day texture (15% smaller)
       const earthGeometry = new THREE.SphereGeometry(0.85, 128, 128);
       const earthMaterial = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('./textures/earth_day.jpg'),
+        map: textureLoader.load('./earth_day.jpg'),
         specular: 0x333333,
         shininess: 15
       });
