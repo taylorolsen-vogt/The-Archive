@@ -168,6 +168,26 @@
       position: relative;
     }
 
+    .timeline-marker-dot {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: rgba(77, 153, 204, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+
+    .timeline-marker-dot:hover {
+      width: 12px;
+      height: 12px;
+      background: rgba(77, 153, 204, 1);
+      box-shadow: 0 0 10px rgba(77, 153, 204, 0.8);
+    }
+
     #timelineSlider {
       position: absolute;
       top: 50%;
@@ -232,6 +252,15 @@
     <div id="timelineDate">Present Day - 2026 CE</div>
     <div id="timelineTrack">
       <input type="range" min="0" max="100" value="100" id="timelineSlider">
+      <div class="timeline-marker-dot" style="left: 0%"></div>
+      <div class="timeline-marker-dot" style="left: 14%"></div>
+      <div class="timeline-marker-dot" style="left: 28%"></div>
+      <div class="timeline-marker-dot" style="left: 42%"></div>
+      <div class="timeline-marker-dot" style="left: 56%"></div>
+      <div class="timeline-marker-dot" style="left: 70%"></div>
+      <div class="timeline-marker-dot" style="left: 84%"></div>
+      <div class="timeline-marker-dot" style="left: 92%"></div>
+      <div class="timeline-marker-dot" style="left: 100%"></div>
     </div>
   </div>
 
@@ -353,12 +382,14 @@
             shootingStar.x - Math.cos(shootingStar.angle) * shootingStar.length,
             shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length
           );
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity * 0.9})`);
-          gradient.addColorStop(0.5, `rgba(200, 220, 255, ${shootingStar.opacity * 0.5})`);
+          gradient.addColorStop(0, `rgba(255, 255, 255, ${shootingStar.opacity})`);
+          gradient.addColorStop(0.3, `rgba(220, 240, 255, ${shootingStar.opacity * 0.8})`);
           gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
           spaceCtx.strokeStyle = gradient;
-          spaceCtx.lineWidth = 1.5;
+          spaceCtx.lineWidth = 2.5;
+          spaceCtx.shadowBlur = 8;
+          spaceCtx.shadowColor = 'rgba(255, 255, 255, 0.8)';
           spaceCtx.beginPath();
           spaceCtx.moveTo(shootingStar.x, shootingStar.y);
           spaceCtx.lineTo(
@@ -366,6 +397,7 @@
             shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length
           );
           spaceCtx.stroke();
+          spaceCtx.shadowBlur = 0;
         } else {
           shootingStar = null;
         }
@@ -464,7 +496,7 @@
             float mixAmount = cosineAngleSunToNormal * 0.5 + 0.5;
             mixAmount = 1.0 - mixAmount;
             mixAmount = pow(mixAmount, 3.0);
-            gl_FragColor = vec4(dayNightMix * mixAmount * 1.5, mixAmount);
+            gl_FragColor = vec4(dayNightMix * mixAmount * 1.0, mixAmount * 0.8);
           }
         `,
         blending: THREE.AdditiveBlending,
