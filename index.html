@@ -1057,9 +1057,8 @@
       console.log('Input:', { lat, lon });
       
       // The Earth texture is rotated 90° in Three.js space
-      // Longitude 0 (Prime Meridian) appears at -90° rotation
-      // So we need to add 90° to our rotation
-      const targetRotY = -(lon + 90) * (Math.PI / 180);
+      // Try subtracting 90° instead
+      const targetRotY = -(lon - 90) * (Math.PI / 180);
       
       // Latitude: positive should tilt down (negative X rotation)
       const targetRotX = -lat * (Math.PI / 180);
