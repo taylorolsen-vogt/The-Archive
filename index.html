@@ -32,13 +32,20 @@
       position: fixed;
       inset: 0;
       display: block;
+    }
+
+    #spaceCanvas {
       z-index: 0;
+    }
+
+    #earthCanvas {
+      z-index: 1;
     }
 
     /* ===== TOP TOOLBAR ===== */
     #toolbar {
       position: fixed;
-      top: -48px; /* hidden initially */
+      top: -48px;
       left: 0;
       right: 0;
       height: 48px;
@@ -91,7 +98,7 @@
       letter-spacing: 0.35em;
       font-weight: 300;
 
-      z-index: 1;
+      z-index: 3;
       pointer-events: none;
 
       transition:
@@ -103,13 +110,101 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
+    /* ===== TIMELINE ===== */
+    #timeline {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.9),
+        rgba(0,0,0,0.0)
+      );
+
+      z-index: 2;
+      
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 30px;
+      gap: 15px;
+    }
+
+    #timelineDate {
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    #timelineTrack {
+      width: 80%;
+      max-width: 1000px;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        rgba(95,180,180,0.2), 
+        rgba(95,180,180,0.6), 
+        rgba(95,180,180,0.2)
+      );
+      position: relative;
+    }
+
+    #timelineSlider {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      transform: translateY(-50%);
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #timelineSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #5fb4b4;
+      border: 2px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(95, 180, 180, 0.8);
+      transition: all 0.2s;
+    }
+
+    #timelineSlider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 25px rgba(95, 180, 180, 1);
+    }
+
+    #timelineSlider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #5fb4b4;
+      border: 2px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(95, 180, 180, 0.8);
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- Star Field -->
+  <!-- Star Field (your original) -->
   <canvas id="spaceCanvas"></canvas>
+
+  <!-- Earth (Three.js) -->
+  <canvas id="earthCanvas"></canvas>
 
   <!-- Boot Title -->
   <div id="bootTitle">
@@ -127,30 +222,39 @@
     </div>
   </div>
 
+  <!-- Timeline -->
+  <div id="timeline">
+    <div id="timelineDate">Present Day - 2026 CE</div>
+    <div id="timelineTrack">
+      <input type="range" min="0" max="100" value="100" id="timelineSlider">
+    </div>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <script>
     /**
-     * Sub-perceptual star field
-     * Dense, slow, non-synchronous, non-rhythmic.
+     * STARFIELD (your original code)
      */
-
-    const canvas = document.getElementById('spaceCanvas');
-    const ctx = canvas.getContext('2d');
+    const spaceCanvas = document.getElementById('spaceCanvas');
+    const spaceCtx = spaceCanvas.getContext('2d');
     const bootTitle = document.getElementById('bootTitle');
     const toolbar = document.getElementById('toolbar');
 
     let stars = [];
     let time = 0;
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    function resizeSpace() {
+      spaceCanvas.width = window.innerWidth;
+      spaceCanvas.height = window.innerHeight;
       createStars();
     }
 
     class Star {
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * spaceCanvas.width;
+        this.y = Math.random() * spaceCanvas.height;
 
         const layer = Math.random();
 
@@ -189,43 +293,234 @@
       }
 
       draw() {
-        ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        spaceCtx.globalAlpha = this.opacity;
+        spaceCtx.fillStyle = '#ffffff';
+        spaceCtx.beginPath();
+        spaceCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        spaceCtx.fill();
       }
     }
 
     function createStars() {
       stars = [];
-      // Increased density (≈ +30%)
-      const count = Math.floor((canvas.width * canvas.height) / 3300);
+      const count = Math.floor((spaceCanvas.width * spaceCanvas.height) / 3300);
       for (let i = 0; i < count; i++) stars.push(new Star());
     }
 
-    function animate() {
+    function animateStars() {
       time += 0.0028;
 
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      spaceCtx.globalAlpha = 1;
+      spaceCtx.fillStyle = '#000';
+      spaceCtx.fillRect(0, 0, spaceCanvas.width, spaceCanvas.height);
 
       for (const star of stars) {
         star.update();
         star.draw();
       }
 
-      requestAnimationFrame(animate);
+      requestAnimationFrame(animateStars);
     }
 
-    window.addEventListener('resize', resize);
+    /**
+     * EARTH (Three.js)
+     */
+    const earthCanvas = document.getElementById('earthCanvas');
+    let scene, camera, renderer, earth, clouds, atmosphere;
+    let isDragging = false;
+    let previousMouse = { x: 0, y: 0 };
+    let rotationVelocity = { x: 0, y: 0 };
+
+    const timelinePoints = [
+      { value: 0, year: -7000000, label: "~7 Million Years Ago - Sahelanthropus tchadensis" },
+      { value: 14, year: -2500000, label: "2.5 Million Years Ago - Stone Tools" },
+      { value: 28, year: -200000, label: "200,000 Years Ago - Homo Sapiens" },
+      { value: 42, year: -10000, label: "10,000 BCE - Agriculture" },
+      { value: 56, year: -3000, label: "3000 BCE - First Civilizations" },
+      { value: 70, year: 500, label: "500 CE - Medieval Period" },
+      { value: 84, year: 1500, label: "1500 CE - Age of Exploration" },
+      { value: 92, year: 1800, label: "1800 CE - Industrial Revolution" },
+      { value: 100, year: 2026, label: "Present Day - 2026 CE" }
+    ];
+
+    function initEarth() {
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 2.5;
+
+      renderer = new THREE.WebGLRenderer({ 
+        canvas: earthCanvas,
+        antialias: true, 
+        alpha: true 
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      sunLight.position.set(5, 2, 3);
+      scene.add(sunLight);
+
+      // Load textures
+      const textureLoader = new THREE.TextureLoader();
+      
+      // Earth with day texture
+      const earthGeometry = new THREE.SphereGeometry(1, 128, 128);
+      const earthMaterial = new THREE.MeshPhongMaterial({
+        map: textureLoader.load('./textures/earth_day.jpg'),
+        specular: 0x333333,
+        shininess: 15
+      });
+      earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      scene.add(earth);
+
+      // Clouds
+      const cloudsGeometry = new THREE.SphereGeometry(1.01, 64, 64);
+      const cloudsMaterial = new THREE.MeshPhongMaterial({
+        map: textureLoader.load('./textures/earth_clouds.jpg'),
+        transparent: true,
+        opacity: 0.4,
+        depthWrite: false
+      });
+      clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+      scene.add(clouds);
+
+      // Atmosphere glow
+      const atmosphereGeometry = new THREE.SphereGeometry(1.15, 64, 64);
+      const atmosphereMaterial = new THREE.ShaderMaterial({
+        uniforms: {},
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          void main() {
+            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 1.8);
+            vec3 atmosphere = vec3(0.3, 0.6, 1.0) * intensity;
+            gl_FragColor = vec4(atmosphere, 1.0) * intensity * 1.5;
+          }
+        `,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true
+      });
+      atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+      scene.add(atmosphere);
+
+      // Mouse controls
+      earthCanvas.addEventListener('mousedown', onMouseDown);
+      earthCanvas.addEventListener('mousemove', onMouseMove);
+      earthCanvas.addEventListener('mouseup', onMouseUp);
+      earthCanvas.addEventListener('wheel', onWheel);
+
+      // Timeline
+      document.getElementById('timelineSlider').addEventListener('input', (e) => {
+        updateTimeline(parseFloat(e.target.value));
+      });
+
+      animateEarth();
+    }
+
+    function onMouseDown(e) {
+      isDragging = true;
+      previousMouse = { x: e.clientX, y: e.clientY };
+    }
+
+    function onMouseMove(e) {
+      if (!isDragging) return;
+      
+      const deltaX = e.clientX - previousMouse.x;
+      const deltaY = e.clientY - previousMouse.y;
+      
+      rotationVelocity.x = deltaY * 0.005;
+      rotationVelocity.y = deltaX * 0.005;
+      
+      previousMouse = { x: e.clientX, y: e.clientY };
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+    }
+
+    function onWheel(e) {
+      e.preventDefault();
+      camera.position.z += e.deltaY * 0.001;
+      camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
+    }
+
+    function updateTimeline(value) {
+      const dateDisplay = document.getElementById('timelineDate');
+      
+      let closestPoint = timelinePoints[0];
+      let minDiff = Math.abs(value - timelinePoints[0].value);
+      
+      for (let point of timelinePoints) {
+        const diff = Math.abs(value - point.value);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestPoint = point;
+        }
+      }
+      
+      dateDisplay.textContent = closestPoint.label;
+    }
+
+    function animateEarth() {
+      requestAnimationFrame(animateEarth);
+
+      // Auto rotation when not dragging
+      if (!isDragging) {
+        earth.rotation.y += 0.0003;
+        clouds.rotation.y += 0.0004;
+
+        // Apply drag momentum
+        earth.rotation.x += rotationVelocity.x;
+        earth.rotation.y += rotationVelocity.y;
+        clouds.rotation.x += rotationVelocity.x;
+        clouds.rotation.y += rotationVelocity.y;
+        
+        // Damping
+        rotationVelocity.x *= 0.95;
+        rotationVelocity.y *= 0.95;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    /**
+     * RESIZE & INIT
+     */
+    function onResize() {
+      resizeSpace();
+      
+      if (camera && renderer) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    }
+
+    window.addEventListener('resize', onResize);
 
     window.addEventListener('load', () => {
-      resize();
-      animate();
+      resizeSpace();
+      animateStars();
+      initEarth();
 
-      // Dock title into toolbar
+      // Title animation
       setTimeout(() => {
         bootTitle.classList.add('hidden');
         toolbar.classList.add('active');
