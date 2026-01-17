@@ -118,7 +118,7 @@
         if (layer > 0.97) {
           this.size = Math.random() * 0.9 + 0.6;
           this.baseOpacity = Math.random() * 0.35 + 0.35;
-          this.glimmer = 0.02;
+          this.glimmer = 0.07;
         } else if (layer > 0.75) {
           this.size = Math.random() * 0.5 + 0.2;
           this.baseOpacity = Math.random() * 0.25 + 0.15;
@@ -162,12 +162,12 @@
     function createStars() {
       stars = [];
       // Slightly denser than before (≈ +18%)
-      const count = Math.floor((canvas.width * canvas.height) / 3800);
+      const count = Math.floor((canvas.width * canvas.height) / 4500);
       for (let i = 0; i < count; i++) stars.push(new Star());
     }
 
     function animate() {
-      time += 0.0015; // extremely slow evolution
+      time += 0.0045; // extremely slow evolution
 
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#000';
