@@ -156,16 +156,25 @@
       top: 48px;
       bottom: 120px;
       width: 380px;
-      background: linear-gradient(135deg, 
-      rgba(135, 206, 235, 0.06) 0%, 
-      rgba(135, 206, 235, 0.10) 100%);
-      backdrop-filter: blur(50px);
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px rgba(77, 153, 204, 0.15);
       z-index: 2;
       transition: left 0.5s ease;
       overflow-y: auto;
       pointer-events: all;
+    }
+
+    #infoPanel canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    #infoPanelContent {
+      position: relative;
+      z-index: 1;
+      height: 100%;
     }
 
     #infoPanel.visible {
@@ -193,7 +202,7 @@
 
     .panel-date {
       font-size: 1em;
-      opacity: 2;
+      opacity: 0.85;
       letter-spacing: 1px;
       color: rgba(255, 255, 255, 0.85);
     }
@@ -381,22 +390,25 @@
 
   <!-- Info Panel -->
   <div id="infoPanel">
-    <div class="panel-close" onclick="closePanel()">×</div>
-    <div class="panel-header">
-      <div class="panel-title" id="panelTitle">Holocene Epoch</div>
-      <div class="panel-date" id="panelDate">12,000 Years Ago - Present</div>
-    </div>
-    <div class="panel-content">
-      <div class="panel-section">
-        <div class="panel-section-title">Overview</div>
-        <div class="panel-description" id="panelDescription">
-          The current geological epoch. Ice age ends, climate warms. Humans develop agriculture, build cities, and create civilization.
-        </div>
+    <canvas id="panelCanvas"></canvas>
+    <div id="infoPanelContent">
+      <div class="panel-close" onclick="closePanel()">×</div>
+      <div class="panel-header">
+        <div class="panel-title" id="panelTitle">Holocene Epoch</div>
+        <div class="panel-date" id="panelDate">12,000 Years Ago - Present</div>
       </div>
-      <div class="panel-section">
-        <div class="panel-section-title">Key Events</div>
-        <div id="panelEvents">
-          <!-- Events will be populated here -->
+      <div class="panel-content">
+        <div class="panel-section">
+          <div class="panel-section-title">Overview</div>
+          <div class="panel-description" id="panelDescription">
+            The current geological epoch. Ice age ends, climate warms. Humans develop agriculture, build cities, and create civilization.
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title">Key Events</div>
+          <div id="panelEvents">
+            <!-- Events will be populated here -->
+          </div>
         </div>
       </div>
     </div>
@@ -565,6 +577,87 @@
     }
 
     /**
+     * PANEL ATMOSPHERE SHADER
+     */
+    let panelScene, panelCamera, panelRenderer, panelAtmosphere;
+
+    function initPanelAtmosphere() {
+      const panelCanvas = document.getElementById('panelCanvas');
+      const panel = document.getElementById('infoPanel');
+      
+      panelScene = new THREE.Scene();
+      
+      panelCamera = new THREE.PerspectiveCamera(
+        45,
+        380 / panel.offsetHeight,
+        0.1,
+        10
+      );
+      panelCamera.position.z = 2;
+      
+      panelRenderer = new THREE.WebGLRenderer({ 
+        canvas: panelCanvas,
+        alpha: true,
+        antialias: true
+      });
+      panelRenderer.setSize(380, panel.offsetHeight);
+      panelRenderer.setPixelRatio(window.devicePixelRatio);
+      
+      // Create atmospheric glow plane
+      const geometry = new THREE.PlaneGeometry(4, 6);
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          time: { value: 0 }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float time;
+          varying vec2 vUv;
+          
+          void main() {
+            vec2 center = vec2(0.0, 0.5);
+            float dist = distance(vUv, center);
+            
+            // Radial glow from left edge
+            float glow = 1.0 - smoothstep(0.0, 1.5, dist);
+            glow = pow(glow, 1.5);
+            
+            // Subtle movement
+            float wave = sin(vUv.y * 10.0 + time * 0.5) * 0.03;
+            glow += wave;
+            
+            // Atmospheric blue color
+            vec3 color = vec3(0.3, 0.6, 1.0);
+            
+            gl_FragColor = vec4(color * glow * 0.4, glow * 0.3);
+          }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending
+      });
+      
+      panelAtmosphere = new THREE.Mesh(geometry, material);
+      panelScene.add(panelAtmosphere);
+      
+      animatePanelAtmosphere();
+    }
+
+    function animatePanelAtmosphere() {
+      requestAnimationFrame(animatePanelAtmosphere);
+      
+      if (panelAtmosphere) {
+        panelAtmosphere.material.uniforms.time.value += 0.01;
+        panelRenderer.render(panelScene, panelCamera);
+      }
+    }
+
+    /**
      * EARTH (Three.js)
      */
     const earthCanvas = document.getElementById('earthCanvas');
@@ -720,7 +813,7 @@
       // Earth with day texture (15% smaller)
       const earthGeometry = new THREE.SphereGeometry(0.85, 128, 128);
       const earthMaterial = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('./textures/earth_day.jpg'),
+        map: textureLoader.load('./texture/earth_day.jpg'),
         specular: 0x333333,
         shininess: 15
       });
