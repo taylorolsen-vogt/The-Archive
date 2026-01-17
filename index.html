@@ -195,6 +195,14 @@
       transition: left 0.5s ease;
       overflow-y: auto;
       pointer-events: all;
+      
+      /* Hide scrollbar but keep functionality */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    #infoPanel::-webkit-scrollbar {
+      display: none; /* Chrome/Safari/Opera */
     }
 
     #infoPanel canvas {
@@ -461,18 +469,7 @@
     <div id="timelineDate">Present Day - 2026 CE</div>
     <div id="timelineTrack">
       <input type="range" min="0" max="100" value="100" id="timelineSlider">
-      <!-- Eons (left side, compressed) -->
-      <div class="timeline-marker-dot" style="left: 2%"></div>
-      <div class="timeline-marker-dot" style="left: 5%"></div>
-      <div class="timeline-marker-dot" style="left: 9%"></div>
-      <!-- Phanerozoic (expanded right side) -->
-      <div class="timeline-marker-dot" style="left: 15%"></div>
-      <div class="timeline-marker-dot" style="left: 35%"></div>
-      <div class="timeline-marker-dot" style="left: 55%"></div>
-      <div class="timeline-marker-dot" style="left: 75%"></div>
-      <div class="timeline-marker-dot" style="left: 85%"></div>
-      <div class="timeline-marker-dot" style="left: 95%"></div>
-      <div class="timeline-marker-dot" style="left: 100%"></div>
+      <!-- Dots will be generated dynamically here -->
     </div>
   </div>
 
@@ -1156,6 +1153,31 @@
       earthCanvas.classList.add('panel-open');
     }
 
+    function renderTimelineDots() {
+      const track = document.getElementById('timelineTrack');
+      const slider = document.getElementById('timelineSlider');
+      
+      // Remove existing dots
+      const existingDots = track.querySelectorAll('.timeline-marker-dot');
+      existingDots.forEach(dot => dot.remove());
+      
+      // Create dots for current level items
+      currentLevel.items.forEach(item => {
+        const dot = document.createElement('div');
+        dot.className = 'timeline-marker-dot';
+        dot.style.left = `${item.value}%`;
+        dot.setAttribute('data-id', item.id);
+        track.appendChild(dot);
+      });
+      
+      // Update slider to show first item by default
+      if (currentLevel.items.length > 0) {
+        const lastItem = currentLevel.items[currentLevel.items.length - 1];
+        slider.value = lastItem.value;
+        updateTimeline(lastItem.value);
+      }
+    }
+
     function closePanel() {
       document.getElementById('infoPanel').classList.remove('visible');
       document.getElementById('earthCanvas').classList.remove('panel-open');
@@ -1355,6 +1377,9 @@
       animateStars();
       initEarth();
       initPanelAtmosphere();
+      
+      // Render initial timeline dots
+      renderTimelineDots();
 
       setTimeout(() => {
         bootTitle.classList.add('hidden');
