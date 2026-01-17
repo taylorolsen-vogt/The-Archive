@@ -1103,8 +1103,9 @@
       
       coordTarget.textContent = `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
       
-      // Try 135 offset (actually between 90 and 180 this time!)
-      const targetRotY = -(lon + 135) * (Math.PI / 180);
+      // You drag RIGHT to see Boston from starting position
+      // So we need POSITIVE rotation, not negative!
+      const targetRotY = lon * (Math.PI / 180);  // Removed the negative!
       const targetRotX = -lat * (Math.PI / 180);
       
       const rotYDeg = (targetRotY * (180 / Math.PI)).toFixed(1);
