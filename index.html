@@ -156,9 +156,10 @@
       top: 48px;
       bottom: 120px;
       width: 380px;
-      background: rgba(26, 77, 77, 0.95);
+      background: rgba(77, 153, 204, 0.15);
       backdrop-filter: blur(20px);
-      border-right: 2px solid rgba(74, 157, 157, 0.3);
+      border-right: 2px solid rgba(77, 153, 204, 0.3);
+      box-shadow: 0 0 40px rgba(77, 153, 204, 0.2);
       z-index: 2;
       transition: left 0.5s ease;
       overflow-y: auto;
@@ -167,6 +168,11 @@
 
     #infoPanel.visible {
       left: 0;
+    }
+
+    #earthCanvas.panel-open {
+      transform: translateX(190px);
+      transition: transform 0.5s ease;
     }
 
     .panel-header {
@@ -178,14 +184,15 @@
       font-size: 1.8em;
       font-weight: 300;
       letter-spacing: 2px;
-      color: #5fb4b4;
+      color: rgba(255, 255, 255, 0.95);
       margin-bottom: 8px;
     }
 
     .panel-date {
       font-size: 1em;
-      opacity: 0.8;
+      opacity: 0.85;
       letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .panel-content {
@@ -200,21 +207,22 @@
       font-size: 0.9em;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #5fb4b4;
+      color: rgba(255, 255, 255, 0.9);
       margin-bottom: 15px;
       font-weight: 500;
     }
 
     .panel-description {
       line-height: 1.7;
-      opacity: 0.9;
+      opacity: 0.95;
       font-size: 0.95em;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .event-item {
       padding: 12px;
       margin-bottom: 10px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(77, 153, 204, 0.15);
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
@@ -222,8 +230,8 @@
     }
 
     .event-item:hover {
-      background: rgba(74, 157, 157, 0.2);
-      border-left-color: #5fb4b4;
+      background: rgba(77, 153, 204, 0.3);
+      border-left-color: rgba(255, 255, 255, 0.8);
       transform: translateX(5px);
     }
 
@@ -233,11 +241,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      color: rgba(255, 255, 255, 0.95);
     }
 
     .event-location {
       font-size: 0.85em;
-      opacity: 0.7;
+      opacity: 0.8;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .location-icon {
@@ -869,6 +879,8 @@
 
     function openPanel(data) {
       const panel = document.getElementById('infoPanel');
+      const earthCanvas = document.getElementById('earthCanvas');
+      
       document.getElementById('panelTitle').textContent = data.label.split(' - ')[0];
       document.getElementById('panelDate').textContent = data.label.split(' - ')[1] || '';
       document.getElementById('panelDescription').textContent = data.description;
@@ -885,22 +897,73 @@
       `).join('');
       
       panel.classList.add('visible');
+      earthCanvas.classList.add('panel-open');
     }
 
     function closePanel() {
       document.getElementById('infoPanel').classList.remove('visible');
+      document.getElementById('earthCanvas').classList.remove('panel-open');
     }
 
     function focusOnLocation(lat, lon) {
-      // Convert lat/lon to rotation angles
+      // Convert lat/lon to proper rotation
+      // Longitude: -180 to 180 → rotate around Y axis
+      // Latitude: -90 to 90 → rotate around X axis
       const latRad = (lat * Math.PI) / 180;
-      const lonRad = (lon * Math.PI) / 180;
+      const lonRad = ((lon - 90) * Math.PI) / 180; // Offset by 90 to align properly
       
-      // Smooth rotation to location
-      const targetRotX = -latRad;
-      const targetRotY = -lonRad + Math.PI / 2;
+      const targetRotX = latRad;
+      const targetRotY = -lonRad;
       
       animateRotation(targetRotX, targetRotY);
+      
+      // Create pulse marker after rotation
+      setTimeout(() => createPulseMarker(lat, lon), 1500);
+    }
+
+    let pulseMarker = null;
+
+    function createPulseMarker(lat, lon) {
+      // Remove existing marker
+      if (pulseMarker) {
+        scene.remove(pulseMarker);
+      }
+      
+      // Convert lat/lon to 3D position on sphere
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const radius = 0.855; // Just above Earth surface
+      
+      const x = -(radius * Math.sin(phi) * Math.cos(theta));
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y = radius * Math.cos(phi);
+      
+      // Create pulsing marker
+      const geometry = new THREE.SphereGeometry(0.015, 16, 16);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffaa00,
+        transparent: true,
+        opacity: 1
+      });
+      pulseMarker = new THREE.Mesh(geometry, material);
+      pulseMarker.position.set(x, y, z);
+      scene.add(pulseMarker);
+      
+      // Pulse animation
+      let pulseTime = 0;
+      const pulseInterval = setInterval(() => {
+        pulseTime += 0.05;
+        const scale = 1 + Math.sin(pulseTime * 3) * 0.5;
+        const opacity = 0.8 + Math.sin(pulseTime * 3) * 0.2;
+        pulseMarker.scale.set(scale, scale, scale);
+        pulseMarker.material.opacity = opacity;
+        
+        if (pulseTime > 6) {
+          clearInterval(pulseInterval);
+          scene.remove(pulseMarker);
+          pulseMarker = null;
+        }
+      }, 50);
     }
 
     function animateRotation(targetX, targetY) {
