@@ -921,7 +921,7 @@
       renderer.setPixelRatio(window.devicePixelRatio);
 
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Increased for Moon visibility
       scene.add(ambientLight);
 
       const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -949,10 +949,12 @@
         shininess: 5
       });
       const moon = new THREE.Mesh(moonGeometry, moonMaterial);
-      // Position ~2.5 Earth diameters away (compressed for visibility)
-      moon.position.set(4.25, 0, 0); // 2.5 * (0.85 * 2) = 4.25
+      // Position to the right and slightly forward to be visible
+      moon.position.set(3.0, 0.3, 1.0);
       scene.add(moon);
       window.moon = moon; // Make accessible for orbit animation
+      
+      console.log('Moon added at position:', moon.position);
 
       // Night lights layer
       const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
