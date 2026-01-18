@@ -1282,8 +1282,35 @@
 
     function drillDown(childId) {
       console.log('Drilling down into:', childId);
-      // TODO: Implement drill-down logic
-      // This will update currentLevel, breadcrumbPath, and re-render timeline
+      
+      // Find the child item in current level
+      const childItem = currentLevel.items.find(item => item.id === childId);
+      
+      if (!childItem) {
+        console.error('Child not found:', childId);
+        return;
+      }
+      
+      // Update breadcrumb path
+      breadcrumbPath.push(childItem.name);
+      
+      // Update current level to this child
+      currentLevel = {
+        level: childItem.type + 's', // 'eon' -> 'eons', 'era' -> 'eras', etc.
+        items: childItem.children || []
+      };
+      
+      // Store reference to parent for navigation
+      currentLevel.parent = childItem;
+      
+      console.log('New level:', currentLevel);
+      console.log('New breadcrumb:', breadcrumbPath);
+      
+      // Re-render timeline with new level's items
+      renderTimelineDots();
+      
+      // Update panel to show this child's details
+      openPanel(childItem);
     }
 
     function updateBreadcrumb() {
