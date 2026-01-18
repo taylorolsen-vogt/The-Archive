@@ -236,27 +236,29 @@
     }
 
     .panel-breadcrumb {
-      font-size: 0.8em;
-      opacity: 0.7;
-      margin-bottom: 12px;
-      letter-spacing: 0.5px;
-      color: rgba(77, 153, 204, 0.9);
+      font-size: 0.85em;
+      opacity: 0.9;
+      margin-bottom: 15px;
+      letter-spacing: 0.8px;
+      color: rgba(77, 153, 204, 1);
+      font-weight: 500;
     }
 
     .breadcrumb-item {
       display: inline;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
     }
 
     .breadcrumb-item:hover {
-      opacity: 1;
+      color: rgba(255, 255, 255, 1);
       text-decoration: underline;
     }
 
     .breadcrumb-separator {
-      margin: 0 8px;
-      opacity: 0.5;
+      margin: 0 10px;
+      opacity: 0.6;
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .panel-title {
@@ -986,6 +988,25 @@
     let breadcrumbPath = []; // Start empty, build as we drill down
     let currentDisplayedItem = null; // Track what's currently shown in panel
 
+    // Texture mapping for different eras
+    const eraTextures = {
+      // Eons
+      'hadean': './textures/hadean.jpg',
+      'archean': './textures/archean.jpg',
+      'proterozoic': './textures/ice_planet.jpg', // Snowball Earth period
+      'phanerozoic': './textures/earth_day.jpg',
+      
+      // Eras within Phanerozoic
+      'paleozoic': './textures/pangaea.jpg', // Pangaea forms
+      'mesozoic': './textures/pangaea.jpg',  // Pangaea breaking up (same texture for now)
+      'cenozoic': './textures/earth_day.jpg', // Modern continents
+      
+      // Default
+      'default': './textures/earth_day.jpg'
+    };
+
+    let currentTexture = './textures/earth_day.jpg';
+
     function initEarth() {
       scene = new THREE.Scene();
 
@@ -1196,6 +1217,52 @@
       }
     }
 
+    function changeEarthTexture(itemId) {
+      const newTexturePath = eraTextures[itemId] || eraTextures['default'];
+      
+      if (newTexturePath === currentTexture) {
+        return; // Already using this texture
+      }
+      
+      console.log('Changing texture from', currentTexture, 'to', newTexturePath);
+      
+      // Load new texture
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(newTexturePath, (newTexture) => {
+        // Smooth fade transition
+        const oldOpacity = earth.material.opacity !== undefined ? earth.material.opacity : 1;
+        earth.material.transparent = true;
+        
+        // Fade out
+        let opacity = oldOpacity;
+        const fadeOut = setInterval(() => {
+          opacity -= 0.05;
+          earth.material.opacity = opacity;
+          
+          if (opacity <= 0) {
+            clearInterval(fadeOut);
+            
+            // Swap texture
+            earth.material.map = newTexture;
+            earth.material.needsUpdate = true;
+            currentTexture = newTexturePath;
+            
+            // Fade in
+            const fadeIn = setInterval(() => {
+              opacity += 0.05;
+              earth.material.opacity = opacity;
+              
+              if (opacity >= 1) {
+                clearInterval(fadeIn);
+                earth.material.transparent = false;
+                earth.material.opacity = 1;
+              }
+            }, 30);
+          }
+        }, 30);
+      });
+    }
+
     function formatYear(year) {
       if (year < -1000000000) {
         return `${Math.abs(year / 1000000000).toFixed(1)} Billion Years Ago`;
@@ -1235,6 +1302,11 @@
       
       // Store the item we're displaying
       currentDisplayedItem = item;
+      
+      // Change Earth texture based on the era
+      if (item.id) {
+        changeEarthTexture(item.id);
+      }
       
       // Update breadcrumb
       updateBreadcrumb();
