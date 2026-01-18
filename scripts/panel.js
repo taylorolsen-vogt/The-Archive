@@ -44,7 +44,10 @@ export function initPanelAtmosphere() {
   const geometry = new THREE.PlaneGeometry(4, 6);
   const material = new THREE.ShaderMaterial({
     uniforms: {
-      time: { value: 0 }
+      time: { value: 0 },
+      colorR: { value: 0.3 },
+      colorG: { value: 0.6 },
+      colorB: { value: 1.0 }
     },
     vertexShader: `
       varying vec2 vUv;
@@ -55,6 +58,9 @@ export function initPanelAtmosphere() {
     `,
     fragmentShader: `
       uniform float time;
+      uniform float colorR;
+      uniform float colorG;
+      uniform float colorB;
       varying vec2 vUv;
       
       void main() {
@@ -76,7 +82,7 @@ export function initPanelAtmosphere() {
         float wave2 = sin(vUv.y * 12.0 - time * 0.3) * 0.05;
         totalGlow += wave1 + wave2;
         
-        vec3 color = vec3(0.3, 0.6, 1.0);
+        vec3 color = vec3(colorR, colorG, colorB);
         
         gl_FragColor = vec4(color * totalGlow * 1.5, totalGlow * 0.85);
       }
@@ -90,6 +96,26 @@ export function initPanelAtmosphere() {
   panelScene.add(panelAtmosphere);
   
   animatePanelAtmosphere();
+}
+
+/**
+ * Update panel shader color based on current body
+ * @param {string} body - 'earth', 'moon', or 'mars'
+ */
+export function updatePanelTheme(body) {
+  if (!panelAtmosphere) return;
+  
+  const colors = {
+    earth: { r: 0.3, g: 0.6, b: 1.0 },   // Blue
+    moon: { r: 0.75, g: 0.75, b: 0.75 },  // Light grey
+    mars: { r: 0.8, g: 0.4, b: 0.2 }      // Orange/red
+  };
+  
+  const color = colors[body] || colors.earth;
+  
+  panelAtmosphere.material.uniforms.colorR.value = color.r;
+  panelAtmosphere.material.uniforms.colorG.value = color.g;
+  panelAtmosphere.material.uniforms.colorB.value = color.b;
 }
 
 /**

@@ -13,6 +13,7 @@ import { initPanelAtmosphere, closePanel } from './panel.js';
 import { renderTimelineDots, updateTimeline } from './timeline.js';
 import { openPanelForTimelineValue } from './navigation.js';
 import { getIsDragging } from './scene.js';
+import { initBodyNavigation } from './body-navigation.js';
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');
@@ -100,13 +101,16 @@ function init() {
   // 6. Initialize timeline controls
   initTimelineControls();
   
-  // 7. Set initial visibility for present day
+  // 7. Initialize body navigation (clickable Moon/Earth)
+  initBodyNavigation();
+  
+  // 8. Set initial visibility for present day
   updateTimelineVisibility(2026);
   
-  // 8. Start main animation loop
+  // 9. Start main animation loop
   animate();
   
-  // 9. Boot sequence animation
+  // 10. Boot sequence animation
   setTimeout(() => {
     bootTitle.classList.add('hidden');
     toolbar.classList.add('active');
