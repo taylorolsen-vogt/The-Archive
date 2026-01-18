@@ -3,8 +3,7 @@
  * Three.js scene, camera, renderer setup and animation loop
  */
 
-import { getMoon, triggerMoonFormation } from './moon.js';
-import { getEarth } from './earth.js';
+import { initClickDetection, detectBodyClick } from './click-detection.js';
 
 // Scene globals
 export let scene, camera, renderer;
@@ -13,10 +12,6 @@ export let scene, camera, renderer;
 let isDragging = false;
 let previousMouse = { x: 0, y: 0 };
 let mouseDownPos = { x: 0, y: 0 };
-
-// Raycaster for body click detection
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
 
 /**
  * Initialize Three.js scene, camera, and renderer
@@ -41,6 +36,9 @@ export function initScene() {
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
+
+  // Initialize click detection
+  initClickDetection(camera);
 
   // Lighting
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -108,53 +106,8 @@ function onMouseUp(e) {
   
   if (!moved) {
     // Handle body click
-    detectBodyClick(e);
-  }
-}
-
-/**
- * Detect clicks on celestial bodies using raycaster
- */
-function detectBodyClick(event) {
-  const rect = event.target.getBoundingClientRect();
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-  
-  console.log('🖱️ Click detected at:', mouse.x, mouse.y);
-  
-  // Update raycaster
-  raycaster.setFromCamera(mouse, camera);
-  
-  // Get clickable objects
-  const clickableObjects = [];
-  
-  const moon = getMoon();
-  const earth = getEarth();
-  
-  if (moon && moon.visible) clickableObjects.push(moon);
-  if (earth) clickableObjects.push(earth);
-  
-  console.log('📦 Clickable objects:', { moonVisible: moon?.visible, earthExists: !!earth, count: clickableObjects.length });
-  
-  // Check for intersections
-  const intersects = raycaster.intersectObjects(clickableObjects);
-  
-  console.log('🎯 Raycaster intersections:', intersects.length);
-  
-  if (intersects.length > 0) {
-    const clickedObject = intersects[0].object;
-    console.log('✅ Object clicked:', clickedObject.name || 'unnamed');
-    
-    // Determine which body was clicked
-    if (clickedObject === moon) {
-      console.log('🌙 MOON CLICKED!');
-      // Trigger Moon formation event
-      triggerMoonFormation();
-    } else if (clickedObject === earth) {
-      console.log('🌍 EARTH CLICKED!');
-    }
-  } else {
-    console.log('❌ No objects intersected');
+    const rect = e.target.getBoundingClientRect();
+    detectBodyClick(e, rect);
   }
 }
 
