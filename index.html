@@ -1245,7 +1245,6 @@
           <div class="subdivision-item" onclick="drillDown('${child.id}')">
             <div class="subdivision-info">
               <div class="subdivision-name">
-                <span class="subdivision-icon">📁</span>
                 ${child.name}
               </div>
               <div class="subdivision-date">${formatYear(child.yearStart)}</div>
@@ -1263,15 +1262,21 @@
       
       if (item.events && item.events.length > 0) {
         eventsSection.style.display = 'block';
-        eventsContainer.innerHTML = item.events.map((event, i) => `
-          <div class="event-item" onclick="focusOnLocation(${event.lat}, ${event.lon})">
-            <div class="event-name">
-              <span class="location-icon">📍</span>
-              ${event.name}
+        eventsContainer.innerHTML = item.events.map((event, i) => {
+          // Only show location icon for events with specific coordinates (not "Global")
+          const hasSpecificLocation = event.location !== "Global" && event.lat !== 0;
+          const locationIcon = hasSpecificLocation ? '<span class="location-icon">📍</span>' : '';
+          
+          return `
+            <div class="event-item" onclick="focusOnLocation(${event.lat}, ${event.lon})">
+              <div class="event-name">
+                ${locationIcon}
+                ${event.name}
+              </div>
+              <div class="event-location">${event.location}</div>
             </div>
-            <div class="event-location">${event.location}</div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       } else {
         eventsSection.style.display = 'none';
       }
