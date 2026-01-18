@@ -983,7 +983,8 @@
 
     // Navigation state
     let currentLevel = timelineData;
-    let breadcrumbPath = ['Earth'];
+    let breadcrumbPath = []; // Start empty, build as we drill down
+    let currentDisplayedItem = null; // Track what's currently shown in panel
 
     function initEarth() {
       scene = new THREE.Scene();
@@ -1220,12 +1221,20 @@
         }
       }
       
+      // When opening from timeline at top level, start fresh breadcrumb
+      if (currentLevel === timelineData) {
+        breadcrumbPath = [closestItem.name];
+      }
+      
       openPanel(closestItem);
     }
 
     function openPanel(item) {
       const panel = document.getElementById('infoPanel');
       const earthCanvas = document.getElementById('earthCanvas');
+      
+      // Store the item we're displaying
+      currentDisplayedItem = item;
       
       // Update breadcrumb
       updateBreadcrumb();
@@ -1242,7 +1251,7 @@
       if (item.children && item.children.length > 0) {
         subdivisionsSection.style.display = 'block';
         subdivisionsContainer.innerHTML = item.children.map((child) => `
-          <div class="subdivision-item" onclick="drillDown('${child.id}')">
+          <div class="subdivision-item" data-child-id="${child.id}">
             <div class="subdivision-info">
               <div class="subdivision-name">
                 ${child.name}
@@ -1252,6 +1261,14 @@
             <div class="subdivision-arrow">›</div>
           </div>
         `).join('');
+        
+        // Add click handlers after rendering
+        subdivisionsContainer.querySelectorAll('.subdivision-item').forEach(el => {
+          el.addEventListener('click', () => {
+            const childId = el.getAttribute('data-child-id');
+            drillDown(childId);
+          });
+        });
       } else {
         subdivisionsSection.style.display = 'none';
       }
@@ -1288,8 +1305,13 @@
     function drillDown(childId) {
       console.log('Drilling down into:', childId);
       
-      // Find the child item in current level
-      const childItem = currentLevel.items.find(item => item.id === childId);
+      // Find the child item in the CURRENTLY DISPLAYED item's children
+      if (!currentDisplayedItem || !currentDisplayedItem.children) {
+        console.error('No displayed item or no children');
+        return;
+      }
+      
+      const childItem = currentDisplayedItem.children.find(item => item.id === childId);
       
       if (!childItem) {
         console.error('Child not found:', childId);
@@ -1341,47 +1363,50 @@
     function navigateToBreadcrumb(index) {
       console.log('Navigate to breadcrumb level:', index, breadcrumbPath[index]);
       
-      // If clicking "Earth" (index 0), go back to top level
-      if (index === 0) {
-        currentLevel = timelineData;
-        breadcrumbPath = ['Earth'];
-        renderTimelineDots();
-        closePanel();
-        return;
-      }
-      
-      // Otherwise, we need to traverse back up the hierarchy
-      // For now, just reload from the top and drill down to the clicked level
-      // TODO: Optimize this by storing parent references
-      
       // Trim breadcrumb to clicked level
       breadcrumbPath = breadcrumbPath.slice(0, index + 1);
       
       // Rebuild currentLevel by drilling down from top
       currentLevel = timelineData;
+      let targetItem = null;
       
-      for (let i = 1; i < breadcrumbPath.length; i++) {
+      for (let i = 0; i < breadcrumbPath.length; i++) {
         const targetName = breadcrumbPath[i];
         const foundItem = currentLevel.items.find(item => item.name === targetName);
         
-        if (foundItem && foundItem.children) {
-          currentLevel = {
-            level: foundItem.type + 's',
-            items: foundItem.children,
-            parent: foundItem
-          };
+        if (foundItem) {
+          targetItem = foundItem;
+          if (i < breadcrumbPath.length - 1 && foundItem.children) {
+            // Not the last item, keep drilling
+            currentLevel = {
+              level: foundItem.type + 's',
+              items: foundItem.children,
+              parent: foundItem
+            };
+          }
         }
       }
       
-      console.log('Navigated to level:', currentLevel);
+      console.log('Navigated to:', targetItem);
       
-      // Re-render timeline and open panel for current level
+      // Update timeline to show the appropriate level
+      if (targetItem && targetItem.children) {
+        currentLevel = {
+          level: targetItem.type + 's',
+          items: targetItem.children,
+          parent: targetItem
+        };
+      } else {
+        // Go back to top level
+        currentLevel = timelineData;
+      }
+      
+      // Re-render timeline
       renderTimelineDots();
       
-      if (currentLevel.parent) {
-        openPanel(currentLevel.parent);
-      } else {
-        closePanel();
+      // Open panel for the target item
+      if (targetItem) {
+        openPanel(targetItem);
       }
     }
 
