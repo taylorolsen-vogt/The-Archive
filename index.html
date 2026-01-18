@@ -484,6 +484,45 @@
       border: none;
       cursor: pointer;
     }
+
+    /* ===== PLAY BUTTON ===== */
+    #playButton {
+      position: fixed;
+      bottom: 35px;
+      left: 50px;
+      z-index: 3;
+      
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(77, 153, 204, 0.3);
+      border: 2px solid rgba(77, 153, 204, 0.8);
+      
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      cursor: pointer;
+      transition: all 0.3s;
+      
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    #playButton:hover {
+      background: rgba(77, 153, 204, 0.5);
+      border-color: rgba(77, 153, 204, 1);
+      transform: scale(1.1);
+    }
+
+    #playButton.playing {
+      background: rgba(204, 77, 77, 0.3);
+      border-color: rgba(204, 77, 77, 0.8);
+    }
+
+    #playButton.playing:hover {
+      background: rgba(204, 77, 77, 0.5);
+    }
   </style>
 </head>
 
@@ -558,6 +597,9 @@
       <!-- Dots will be generated dynamically here -->
     </div>
   </div>
+
+  <!-- Play Button -->
+  <div id="playButton" onclick="togglePlayback()">▶</div>
 
   <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1006,6 +1048,104 @@
     };
 
     let currentTexture = './textures/earth_day.jpg';
+
+    // Playback state
+    let isPlaying = false;
+    let playbackQueue = [];
+    let playbackIndex = 0;
+    let playbackInterval = null;
+
+    function buildPlaybackQueue() {
+      // Build a flat list of all items to visit in chronological order
+      const queue = [];
+      
+      function addItemsRecursively(items) {
+        for (const item of items) {
+          queue.push(item);
+          if (item.children && item.children.length > 0) {
+            addItemsRecursively(item.children);
+          }
+        }
+      }
+      
+      addItemsRecursively(timelineData.items);
+      
+      // Sort by year (oldest first)
+      queue.sort((a, b) => a.yearStart - b.yearStart);
+      
+      return queue;
+    }
+
+    function togglePlayback() {
+      const button = document.getElementById('playButton');
+      
+      if (isPlaying) {
+        // Stop playback
+        isPlaying = false;
+        button.classList.remove('playing');
+        button.textContent = '▶';
+        
+        if (playbackInterval) {
+          clearTimeout(playbackInterval);
+          playbackInterval = null;
+        }
+      } else {
+        // Start playback
+        isPlaying = true;
+        button.classList.add('playing');
+        button.textContent = '⏸';
+        
+        // Build queue if not already built
+        if (playbackQueue.length === 0) {
+          playbackQueue = buildPlaybackQueue();
+          playbackIndex = 0;
+        }
+        
+        playNextItem();
+      }
+    }
+
+    function playNextItem() {
+      if (!isPlaying || playbackIndex >= playbackQueue.length) {
+        // End of playback
+        isPlaying = false;
+        const button = document.getElementById('playButton');
+        button.classList.remove('playing');
+        button.textContent = '▶';
+        playbackIndex = 0;
+        return;
+      }
+      
+      const item = playbackQueue[playbackIndex];
+      console.log('Playing:', item.name, 'at index', playbackIndex);
+      
+      // Navigate to this item
+      navigateToItem(item);
+      
+      // Determine pause duration based on item type
+      let pauseDuration = 2000; // Default 2 seconds
+      if (item.type === 'eon') pauseDuration = 3000;
+      if (item.type === 'epoch') pauseDuration = 1500;
+      
+      playbackIndex++;
+      
+      // Schedule next item
+      playbackInterval = setTimeout(() => {
+        playNextItem();
+      }, pauseDuration);
+    }
+
+    function navigateToItem(item) {
+      // Find the path to this item and navigate there
+      // For now, just open its panel
+      // TODO: Actually drill down through hierarchy
+      
+      // Reset to top level
+      currentLevel = timelineData;
+      breadcrumbPath = [item.name];
+      
+      openPanel(item);
+    }
 
     function initEarth() {
       scene = new THREE.Scene();
