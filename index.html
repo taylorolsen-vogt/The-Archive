@@ -941,8 +941,8 @@
       earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
 
-      // Moon - smaller size for better visual balance
-      const moonGeometry = new THREE.SphereGeometry(0.17, 64, 64); // Was 0.23 (27%), now 0.17 (20%)
+      // Moon - much smaller and distant for dramatic realism
+      const moonGeometry = new THREE.SphereGeometry(0.068, 64, 64); // 8% of Earth's 0.85 = 0.068
       const moonMaterial = new THREE.MeshPhongMaterial({
         map: textureLoader.load('./textures/moon.jpg'),
         specular: 0x111111,
@@ -950,7 +950,7 @@
       });
       const moon = new THREE.Mesh(moonGeometry, moonMaterial);
       // Starting position will be set by orbit animation
-      moon.position.set(2.5, 0, 0); // Further out
+      moon.position.set(5.0, 0, 0); // Much further out
       scene.add(moon);
       window.moon = moon; // Make accessible for orbit animation
       
@@ -1373,7 +1373,7 @@
       // Moon orbital motion (slow 2D orbit, always on screen)
       if (window.moon) {
         const time = Date.now() * 0.00002; // Slow orbit
-        const orbitRadius = 2.5; // Further orbit (was 1.5)
+        const orbitRadius = 5.0; // Dramatic distance (was 2.5)
         
         // Circular motion in X-Z plane (orbiting around Y-axis, like a clock face)
         window.moon.position.x = Math.cos(time) * orbitRadius;
