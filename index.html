@@ -156,7 +156,7 @@
     }
 
     /* ===== TIMELINE ===== */
-      #timeline {
+    #timeline {
       position: fixed;
       bottom: 0;
       left: 0;
@@ -420,9 +420,16 @@
       opacity: 0.9;
     }
 
-    #timelineTrack {
+    #timelineControls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
       width: 80%;
       max-width: 1000px;
+    }
+
+    #timelineTrack {
+      flex: 1;
       height: 2px;
       background: linear-gradient(90deg, 
         rgba(77, 153, 204, 0.3), 
@@ -487,16 +494,11 @@
 
     /* ===== PLAY BUTTON ===== */
     #playButton {
-      position: fixed;
-      bottom: 35px;
-      left: 50px;
-      z-index: 3;
-      
-      width: 50px;
-      height: 50px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: rgba(77, 153, 204, 0.3);
-      border: 2px solid rgba(77, 153, 204, 0.8);
+      background: rgba(77, 153, 204, 0.25);
+      border: 1.5px solid rgba(77, 153, 204, 0.6);
       
       display: flex;
       align-items: center;
@@ -505,23 +507,25 @@
       cursor: pointer;
       transition: all 0.3s;
       
-      font-size: 20px;
+      font-size: 14px;
       color: rgba(255, 255, 255, 0.9);
+      flex-shrink: 0;
     }
 
     #playButton:hover {
-      background: rgba(77, 153, 204, 0.5);
+      background: rgba(77, 153, 204, 0.4);
       border-color: rgba(77, 153, 204, 1);
       transform: scale(1.1);
     }
 
     #playButton.playing {
-      background: rgba(204, 77, 77, 0.3);
-      border-color: rgba(204, 77, 77, 0.8);
+      background: rgba(204, 77, 77, 0.25);
+      border-color: rgba(204, 77, 77, 0.6);
     }
 
     #playButton.playing:hover {
-      background: rgba(204, 77, 77, 0.5);
+      background: rgba(204, 77, 77, 0.4);
+      border-color: rgba(204, 77, 77, 1);
     }
   </style>
 </head>
@@ -592,14 +596,14 @@
   <!-- Timeline -->
   <div id="timeline">
     <div id="timelineDate">Present Day - 2026 CE</div>
-    <div id="timelineTrack">
-      <input type="range" min="0" max="100" value="100" id="timelineSlider">
-      <!-- Dots will be generated dynamically here -->
+    <div id="timelineControls">
+      <div id="playButton" onclick="togglePlayback()">▶</div>
+      <div id="timelineTrack">
+        <input type="range" min="0" max="100" value="100" id="timelineSlider">
+        <!-- Dots will be generated dynamically here -->
+      </div>
     </div>
   </div>
-
-  <!-- Play Button -->
-  <div id="playButton" onclick="togglePlayback()">▶</div>
 
   <!-- Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1119,13 +1123,14 @@
       const item = playbackQueue[playbackIndex];
       console.log('Playing:', item.name, 'at index', playbackIndex);
       
-      // Navigate to this item
-      navigateToItem(item);
+      // Navigate to this item properly
+      navigateToItemInHierarchy(item);
       
       // Determine pause duration based on item type
       let pauseDuration = 2000; // Default 2 seconds
       if (item.type === 'eon') pauseDuration = 3000;
-      if (item.type === 'epoch') pauseDuration = 1500;
+      if (item.type === 'era') pauseDuration = 2500;
+      if (item.type === 'epoch') pauseDuration = 1800;
       
       playbackIndex++;
       
@@ -1135,16 +1140,69 @@
       }, pauseDuration);
     }
 
-    function navigateToItem(item) {
-      // Find the path to this item and navigate there
-      // For now, just open its panel
-      // TODO: Actually drill down through hierarchy
+    function navigateToItemInHierarchy(targetItem) {
+      // Find the path to this item in the hierarchy
+      function findPath(items, target, path = []) {
+        for (const item of items) {
+          const newPath = [...path, item];
+          if (item.id === target.id) {
+            return newPath;
+          }
+          if (item.children && item.children.length > 0) {
+            const found = findPath(item.children, target, newPath);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
       
-      // Reset to top level
-      currentLevel = timelineData;
-      breadcrumbPath = [item.name];
+      const path = findPath(timelineData.items, targetItem);
       
-      openPanel(item);
+      if (!path) {
+        console.error('Could not find path to item:', targetItem.name);
+        return;
+      }
+      
+      console.log('Path to item:', path.map(i => i.name));
+      
+      // Navigate to parent level if item has children, otherwise to item itself
+      if (targetItem.children && targetItem.children.length > 0) {
+        // This item is a folder - show its children
+        currentLevel = {
+          level: targetItem.type + 's',
+          items: targetItem.children,
+          parent: targetItem
+        };
+        breadcrumbPath = path.slice(0, -1).map(i => i.name).concat([targetItem.name]);
+        currentDisplayedItem = targetItem;
+      } else {
+        // This item is a leaf - show it within its parent's level
+        const parent = path[path.length - 2];
+        if (parent) {
+          currentLevel = {
+            level: parent.type + 's',
+            items: parent.children,
+            parent: parent
+          };
+          breadcrumbPath = path.slice(0, -1).map(i => i.name);
+        } else {
+          // Top level item
+          currentLevel = timelineData;
+          breadcrumbPath = [];
+        }
+        currentDisplayedItem = targetItem;
+      }
+      
+      // Update timeline to show current level
+      renderTimelineDots();
+      
+      // Update slider position
+      const slider = document.getElementById('timelineSlider');
+      slider.value = targetItem.value;
+      updateTimeline(targetItem.value);
+      
+      // Open panel
+      openPanel(targetItem);
     }
 
     function initEarth() {
