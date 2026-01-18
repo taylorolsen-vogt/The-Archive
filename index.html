@@ -1339,9 +1339,50 @@
     }
 
     function navigateToBreadcrumb(index) {
-      // TODO: Navigate back to that level in the hierarchy
       console.log('Navigate to breadcrumb level:', index, breadcrumbPath[index]);
-      // This will be implemented when we add drill-down functionality
+      
+      // If clicking "Earth" (index 0), go back to top level
+      if (index === 0) {
+        currentLevel = timelineData;
+        breadcrumbPath = ['Earth'];
+        renderTimelineDots();
+        closePanel();
+        return;
+      }
+      
+      // Otherwise, we need to traverse back up the hierarchy
+      // For now, just reload from the top and drill down to the clicked level
+      // TODO: Optimize this by storing parent references
+      
+      // Trim breadcrumb to clicked level
+      breadcrumbPath = breadcrumbPath.slice(0, index + 1);
+      
+      // Rebuild currentLevel by drilling down from top
+      currentLevel = timelineData;
+      
+      for (let i = 1; i < breadcrumbPath.length; i++) {
+        const targetName = breadcrumbPath[i];
+        const foundItem = currentLevel.items.find(item => item.name === targetName);
+        
+        if (foundItem && foundItem.children) {
+          currentLevel = {
+            level: foundItem.type + 's',
+            items: foundItem.children,
+            parent: foundItem
+          };
+        }
+      }
+      
+      console.log('Navigated to level:', currentLevel);
+      
+      // Re-render timeline and open panel for current level
+      renderTimelineDots();
+      
+      if (currentLevel.parent) {
+        openPanel(currentLevel.parent);
+      } else {
+        closePanel();
+      }
     }
 
     function renderTimelineDots() {
