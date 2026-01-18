@@ -330,6 +330,59 @@
       color: rgba(255, 255, 255, 0.8);
     }
 
+    .subdivision-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      background: rgba(77, 153, 204, 0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-left: 3px solid rgba(77, 153, 204, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .subdivision-item:hover {
+      background: rgba(77, 153, 204, 0.25);
+      border-left-color: rgba(77, 153, 204, 0.9);
+      transform: translateX(5px);
+    }
+
+    .subdivision-info {
+      flex: 1;
+    }
+
+    .subdivision-name {
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 1.05em;
+    }
+
+    .subdivision-icon {
+      font-size: 1.2em;
+    }
+
+    .subdivision-date {
+      font-size: 0.85em;
+      opacity: 0.7;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .subdivision-arrow {
+      color: rgba(77, 153, 204, 0.7);
+      font-size: 1.5em;
+      transition: transform 0.3s;
+    }
+
+    .subdivision-item:hover .subdivision-arrow {
+      transform: translateX(5px);
+    }
+
     .location-icon {
       color: #5fb4b4;
       font-size: 1.1em;
@@ -479,7 +532,13 @@
             The current geological epoch. Ice age ends, climate warms. Humans develop agriculture, build cities, and create civilization.
           </div>
         </div>
-        <div class="panel-section">
+        <div class="panel-section" id="subdivisionsSection" style="display: none;">
+          <div class="panel-section-title">Sub-Divisions</div>
+          <div id="panelSubdivisions">
+            <!-- Subdivisions will be populated here -->
+          </div>
+        </div>
+        <div class="panel-section" id="eventsSection">
           <div class="panel-section-title">Key Events</div>
           <div id="panelEvents">
             <!-- Events will be populated here -->
@@ -1176,10 +1235,34 @@
       document.getElementById('panelDate').textContent = yearStr;
       document.getElementById('panelDescription').textContent = item.description;
       
+      // Show subdivisions if this item has children
+      const subdivisionsSection = document.getElementById('subdivisionsSection');
+      const subdivisionsContainer = document.getElementById('panelSubdivisions');
+      
+      if (item.children && item.children.length > 0) {
+        subdivisionsSection.style.display = 'block';
+        subdivisionsContainer.innerHTML = item.children.map((child) => `
+          <div class="subdivision-item" onclick="drillDown('${child.id}')">
+            <div class="subdivision-info">
+              <div class="subdivision-name">
+                <span class="subdivision-icon">📁</span>
+                ${child.name}
+              </div>
+              <div class="subdivision-date">${formatYear(child.yearStart)}</div>
+            </div>
+            <div class="subdivision-arrow">›</div>
+          </div>
+        `).join('');
+      } else {
+        subdivisionsSection.style.display = 'none';
+      }
+      
+      // Show events section
+      const eventsSection = document.getElementById('eventsSection');
       const eventsContainer = document.getElementById('panelEvents');
       
-      // Show events if this item has them
       if (item.events && item.events.length > 0) {
+        eventsSection.style.display = 'block';
         eventsContainer.innerHTML = item.events.map((event, i) => `
           <div class="event-item" onclick="focusOnLocation(${event.lat}, ${event.lon})">
             <div class="event-name">
@@ -1190,11 +1273,17 @@
           </div>
         `).join('');
       } else {
-        eventsContainer.innerHTML = '<div style="opacity: 0.6; font-size: 0.9em;">No events at this level</div>';
+        eventsSection.style.display = 'none';
       }
       
       panel.classList.add('visible');
       earthCanvas.classList.add('panel-open');
+    }
+
+    function drillDown(childId) {
+      console.log('Drilling down into:', childId);
+      // TODO: Implement drill-down logic
+      // This will update currentLevel, breadcrumbPath, and re-render timeline
     }
 
     function updateBreadcrumb() {
@@ -1427,7 +1516,7 @@
       // Moon orbital motion (slow 2D orbit, always on screen)
       if (window.moon) {
         const time = Date.now() * 0.00002; // Slow orbit
-        const orbitRadius = 3.0; // Dramatic distance (was 2.5)
+        const orbitRadius = 3.0; // Back to 3 units as user prefers
         
         // Circular motion in X-Z plane (orbiting around Y-axis, like a clock face)
         window.moon.position.x = Math.cos(time) * orbitRadius;
