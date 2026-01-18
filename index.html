@@ -235,6 +235,30 @@
       background: rgba(0, 0, 0, 0.4);
     }
 
+    .panel-breadcrumb {
+      font-size: 0.8em;
+      opacity: 0.7;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      color: rgba(77, 153, 204, 0.9);
+    }
+
+    .breadcrumb-item {
+      display: inline;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .breadcrumb-item:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    .breadcrumb-separator {
+      margin: 0 8px;
+      opacity: 0.5;
+    }
+
     .panel-title {
       font-size: 1.8em;
       font-weight: 300;
@@ -444,6 +468,7 @@
     <div id="infoPanelContent">
       <div class="panel-close" onclick="closePanel()">×</div>
       <div class="panel-header">
+        <div class="panel-breadcrumb" id="panelBreadcrumb">Earth</div>
         <div class="panel-title" id="panelTitle">Holocene Epoch</div>
         <div class="panel-date" id="panelDate">12,000 Years Ago - Present</div>
       </div>
@@ -727,7 +752,7 @@
           id: 'hadean',
           type: 'eon',
           name: 'Hadean',
-          value: 2,
+          value: 5,  // Spread out more (was 2)
           yearStart: -4600000000,
           yearEnd: -4000000000,
           description: "Earth forms from cosmic dust. Molten surface, no solid crust. Constant bombardment from asteroids and comets.",
@@ -741,7 +766,7 @@
           id: 'archean',
           type: 'eon',
           name: 'Archean',
-          value: 5,
+          value: 15,  // Better spacing (was 5)
           yearStart: -4000000000,
           yearEnd: -2500000000,
           description: "First solid crust forms. Primitive single-celled life emerges in deep ocean vents. Atmosphere lacks oxygen.",
@@ -755,7 +780,7 @@
           id: 'proterozoic',
           type: 'eon',
           name: 'Proterozoic',
-          value: 9,
+          value: 35,  // Better spacing (was 9)
           yearStart: -2500000000,
           yearEnd: -541000000,
           description: "Oxygen atmosphere develops from cyanobacteria. First complex cells with nuclei. Snowball Earth episodes.",
@@ -769,7 +794,7 @@
           id: 'phanerozoic',
           type: 'eon',
           name: 'Phanerozoic',
-          value: 15,
+          value: 65,  // Better spacing (was 15)
           yearStart: -541000000,
           yearEnd: 2026,
           description: "The age of visible life. From Cambrian explosion to present day. Continents shift, species rise and fall.",
@@ -1143,6 +1168,9 @@
       const panel = document.getElementById('infoPanel');
       const earthCanvas = document.getElementById('earthCanvas');
       
+      // Update breadcrumb
+      updateBreadcrumb();
+      
       document.getElementById('panelTitle').textContent = item.name;
       const yearStr = formatYear(item.yearStart);
       document.getElementById('panelDate').textContent = yearStr;
@@ -1167,6 +1195,32 @@
       
       panel.classList.add('visible');
       earthCanvas.classList.add('panel-open');
+    }
+
+    function updateBreadcrumb() {
+      const breadcrumbEl = document.getElementById('panelBreadcrumb');
+      
+      // Build breadcrumb HTML
+      const breadcrumbHTML = breadcrumbPath.map((item, index) => {
+        const isLast = index === breadcrumbPath.length - 1;
+        const separator = isLast ? '' : '<span class="breadcrumb-separator">›</span>';
+        
+        if (isLast) {
+          // Current level - not clickable
+          return `<span style="opacity: 1;">${item}</span>`;
+        } else {
+          // Parent levels - clickable
+          return `<span class="breadcrumb-item" onclick="navigateToBreadcrumb(${index})">${item}</span>${separator}`;
+        }
+      }).join('');
+      
+      breadcrumbEl.innerHTML = breadcrumbHTML;
+    }
+
+    function navigateToBreadcrumb(index) {
+      // TODO: Navigate back to that level in the hierarchy
+      console.log('Navigate to breadcrumb level:', index, breadcrumbPath[index]);
+      // This will be implemented when we add drill-down functionality
     }
 
     function renderTimelineDots() {
@@ -1373,7 +1427,7 @@
       // Moon orbital motion (slow 2D orbit, always on screen)
       if (window.moon) {
         const time = Date.now() * 0.00002; // Slow orbit
-        const orbitRadius = 3.0; // Dramatic distance (was 2.5)
+        const orbitRadius = 5.0; // Dramatic distance (was 2.5)
         
         // Circular motion in X-Z plane (orbiting around Y-axis, like a clock face)
         window.moon.position.x = Math.cos(time) * orbitRadius;
