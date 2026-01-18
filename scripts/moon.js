@@ -28,7 +28,7 @@ export function createMoon() {
   
   moon = new THREE.Mesh(moonGeometry, moonMaterial);
   moon.position.set(3.0, 0, 0); // Starting orbital position
-  moon.visible = false; // Hidden until formation event
+  moon.visible = true; // Visible and clickable
   scene.add(moon);
   
   // Make globally accessible

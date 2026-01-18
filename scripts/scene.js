@@ -3,12 +3,20 @@
  * Three.js scene, camera, renderer setup and animation loop
  */
 
+import { getMoon, triggerMoonFormation } from './moon.js';
+import { getEarth } from './earth.js';
+
 // Scene globals
 export let scene, camera, renderer;
 
 // Mouse interaction state
 let isDragging = false;
 let previousMouse = { x: 0, y: 0 };
+let mouseDownPos = { x: 0, y: 0 };
+
+// Raycaster for body click detection
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 /**
  * Initialize Three.js scene, camera, and renderer
@@ -68,9 +76,7 @@ export function handleResize() {
 function onMouseDown(e) {
   isDragging = true;
   previousMouse = { x: e.clientX, y: e.clientY };
-  
-  // Store initial position for click detection
-  window.mouseDownPos = { x: e.clientX, y: e.clientY };
+  mouseDownPos = { x: e.clientX, y: e.clientY };
 }
 
 function onMouseMove(e) {
@@ -92,8 +98,64 @@ function onMouseMove(e) {
   previousMouse = { x: e.clientX, y: e.clientY };
 }
 
-function onMouseUp() {
+function onMouseUp(e) {
   isDragging = false;
+  
+  // Check if it was a click (not a drag)
+  const moveThreshold = 5;
+  const moved = Math.abs(e.clientX - mouseDownPos.x) > moveThreshold || 
+                Math.abs(e.clientY - mouseDownPos.y) > moveThreshold;
+  
+  if (!moved) {
+    // Handle body click
+    detectBodyClick(e);
+  }
+}
+
+/**
+ * Detect clicks on celestial bodies using raycaster
+ */
+function detectBodyClick(event) {
+  const rect = event.target.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  
+  console.log('🖱️ Click detected at:', mouse.x, mouse.y);
+  
+  // Update raycaster
+  raycaster.setFromCamera(mouse, camera);
+  
+  // Get clickable objects
+  const clickableObjects = [];
+  
+  const moon = getMoon();
+  const earth = getEarth();
+  
+  if (moon && moon.visible) clickableObjects.push(moon);
+  if (earth) clickableObjects.push(earth);
+  
+  console.log('📦 Clickable objects:', { moonVisible: moon?.visible, earthExists: !!earth, count: clickableObjects.length });
+  
+  // Check for intersections
+  const intersects = raycaster.intersectObjects(clickableObjects);
+  
+  console.log('🎯 Raycaster intersections:', intersects.length);
+  
+  if (intersects.length > 0) {
+    const clickedObject = intersects[0].object;
+    console.log('✅ Object clicked:', clickedObject.name || 'unnamed');
+    
+    // Determine which body was clicked
+    if (clickedObject === moon) {
+      console.log('🌙 MOON CLICKED!');
+      // Trigger Moon formation event
+      triggerMoonFormation();
+    } else if (clickedObject === earth) {
+      console.log('🌍 EARTH CLICKED!');
+    }
+  } else {
+    console.log('❌ No objects intersected');
+  }
 }
 
 function onWheel(e) {
