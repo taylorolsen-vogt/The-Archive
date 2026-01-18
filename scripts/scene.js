@@ -68,6 +68,9 @@ export function handleResize() {
 function onMouseDown(e) {
   isDragging = true;
   previousMouse = { x: e.clientX, y: e.clientY };
+  
+  // Store initial position for click detection
+  window.mouseDownPos = { x: e.clientX, y: e.clientY };
 }
 
 function onMouseMove(e) {

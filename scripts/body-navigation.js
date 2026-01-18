@@ -20,17 +20,51 @@ const mouse = new THREE.Vector2();
 export function initBodyNavigation() {
   const earthCanvas = document.getElementById('earthCanvas');
   
-  earthCanvas.addEventListener('click', onBodyClick);
+  // Track mouse position on move
+  earthCanvas.addEventListener('mousemove', onMouseMove);
+  
+  // Detect click (short click without dragging)
+  earthCanvas.addEventListener('mouseup', onMouseUp);
+}
+
+/**
+ * Track mouse position for raycasting
+ */
+let mouseDownPos = { x: 0, y: 0 };
+
+function onMouseMove(event) {
+  const rect = event.target.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+/**
+ * Handle mouse up - detect if it was a click (not a drag)
+ */
+function onMouseUp(event) {
+  // Record mouse down position to detect drags vs clicks
+  if (!mouseDownPos.hasOwnProperty('isDragging')) {
+    // Check if movement was minimal (click, not drag)
+    const rect = event.target.getBoundingClientRect();
+    const currentX = event.clientX - rect.left;
+    const currentY = event.clientY - rect.top;
+    
+    // If mouse moved very little, treat as click
+    const moveThreshold = 5;
+    const moved = Math.abs(currentX - mouseDownPos.x) > moveThreshold || 
+                  Math.abs(currentY - mouseDownPos.y) > moveThreshold;
+    
+    if (!moved) {
+      onBodyClick(event);
+    }
+  }
 }
 
 /**
  * Handle clicks on canvas to detect body selection
  */
 function onBodyClick(event) {
-  // Calculate mouse position in normalized device coordinates (-1 to +1)
-  const rect = event.target.getBoundingClientRect();
-  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  console.log('Body click detected at:', mouse.x, mouse.y);
   
   // Update raycaster
   raycaster.setFromCamera(mouse, camera);
@@ -41,19 +75,27 @@ function onBodyClick(event) {
   const moon = getMoon();
   const earth = getEarth();
   
+  console.log('Moon:', moon, 'visible:', moon?.visible);
+  console.log('Earth:', earth);
+  
   if (moon && moon.visible) clickableObjects.push(moon);
   if (earth) clickableObjects.push(earth);
   
   // Check for intersections
   const intersects = raycaster.intersectObjects(clickableObjects);
   
+  console.log('Intersections found:', intersects.length);
+  
   if (intersects.length > 0) {
     const clickedObject = intersects[0].object;
+    console.log('Clicked object:', clickedObject);
     
     // Determine which body was clicked
     if (clickedObject === moon) {
+      console.log('Moon clicked!');
       transitionToMoon();
     } else if (clickedObject === earth) {
+      console.log('Earth clicked!');
       transitionToEarth();
     }
   }
