@@ -1,0 +1,175 @@
+/* ================================================
+   THE ARCHIVE - CONTROLS STYLES
+   Play button, toggle button, and layers panel
+   ================================================ */
+
+/* ===== PLAY BUTTON ===== */
+#playButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(77, 153, 204, 0.25);
+  border: 1.5px solid rgba(77, 153, 204, 0.6);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+#playButton:hover {
+  background: rgba(77, 153, 204, 0.4);
+  border-color: rgba(77, 153, 204, 1);
+  transform: scale(1.1);
+}
+
+#playButton.playing {
+  background: rgba(204, 77, 77, 0.25);
+  border-color: rgba(204, 77, 77, 0.6);
+}
+
+#playButton.playing:hover {
+  background: rgba(204, 77, 77, 0.4);
+  border-color: rgba(204, 77, 77, 1);
+}
+
+/* ===== TOGGLE/LAYERS BUTTON ===== */
+#toggleButton {
+  position: fixed;
+  bottom: 35px;
+  right: 50px;
+  z-index: 3;
+  
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(77, 153, 204, 0.3);
+  border: 2px solid rgba(77, 153, 204, 0.8);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+#toggleButton:hover {
+  background: rgba(77, 153, 204, 0.5);
+  border-color: rgba(77, 153, 204, 1);
+  transform: scale(1.1);
+}
+
+#toggleButton.active {
+  background: rgba(77, 153, 204, 0.6);
+  border-color: rgba(77, 153, 204, 1);
+}
+
+/* ===== LAYERS PANEL ===== */
+#layersPanel {
+  position: fixed;
+  bottom: 100px;
+  right: 50px;
+  z-index: 3;
+  
+  width: 200px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(77, 153, 204, 0.5);
+  border-radius: 12px;
+  padding: 15px;
+  
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+#layersPanel.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.layers-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(77, 153, 204, 1);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  margin-bottom: 6px;
+  background: rgba(77, 153, 204, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.layer-item:hover {
+  background: rgba(77, 153, 204, 0.2);
+}
+
+.layer-item.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.layer-item.disabled:hover {
+  background: rgba(77, 153, 204, 0.1);
+}
+
+.layer-name {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layer-icon {
+  font-size: 16px;
+}
+
+.layer-toggle {
+  width: 36px;
+  height: 20px;
+  background: rgba(100, 100, 100, 0.5);
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.layer-toggle.active {
+  background: rgba(77, 153, 204, 0.8);
+}
+
+.layer-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.3s;
+}
+
+.layer-toggle.active::after {
+  left: 18px;
+}

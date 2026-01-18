@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>The Archive</title>
+
+  <!-- Favicon - Triangle from Major Mono Display A -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,20 80,80 20,80' fill='%23fff'/></svg>">
+
+  <!-- Major Mono Display (for A / T glyphs) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/panel.css">
+  <link rel="stylesheet" href="styles/timeline.css">
+  <link rel="stylesheet" href="styles/controls.css">
+</head>
+
+<body>
+
+  <!-- Star Field (your original) -->
+  <canvas id="spaceCanvas"></canvas>
+
+  <!-- Earth (Three.js) -->
+  <canvas id="earthCanvas"></canvas>
+
+  <!-- Boot Title -->
+  <div id="bootTitle">
+    <span class="mono">T</span>HE
+    &nbsp;
+    <span class="mono">A</span>RCHIVE
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <div id="title">
+      <span class="mono">T</span>HE
+      &nbsp;
+      <span class="mono">A</span>RCHIVE
+    </div>
+  </div>
+
+  <!-- Coordinate Display -->
+  <div id="coordDisplay">
+    <div class="coord-line"><span class="coord-label">TARGET:</span><span id="coordTarget">—</span></div>
+    <div class="coord-line"><span class="coord-label">ROTATION:</span><span id="coordRotation">—</span></div>
+  </div>
+
+  <!-- Info Panel -->
+  <div id="infoPanel">
+    <canvas id="panelCanvas"></canvas>
+    <div id="infoPanelContent">
+      <div class="panel-close" onclick="closePanel()">×</div>
+      <div class="panel-header">
+        <div class="panel-breadcrumb" id="panelBreadcrumb">Earth</div>
+        <div class="panel-title" id="panelTitle">Holocene Epoch</div>
+        <div class="panel-date" id="panelDate">12,000 Years Ago - Present</div>
+      </div>
+      <div class="panel-content">
+        <div class="panel-section">
+          <div class="panel-section-title">Overview</div>
+          <div class="panel-description" id="panelDescription">
+            The current geological epoch. Ice age ends, climate warms. Humans develop agriculture, build cities, and create civilization.
+          </div>
+        </div>
+        <div class="panel-section" id="subdivisionsSection" style="display: none;">
+          <div class="panel-section-title">Sub-Divisions</div>
+          <div id="panelSubdivisions">
+            <!-- Subdivisions will be populated here -->
+          </div>
+        </div>
+        <div class="panel-section" id="eventsSection">
+          <div class="panel-section-title">Key Events</div>
+          <div id="panelEvents">
+            <!-- Events will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div id="timeline">
+    <div id="timelineDate">Present Day - 2026 CE</div>
+    <div id="timelineDescription"></div>
+    <div id="timelineControls">
+      <div id="playButton" onclick="togglePlayback()">▶</div>
+      <div id="timelineTrack">
+        <input type="range" min="0" max="100" value="100" id="timelineSlider">
+        <div id="playbackIndicator"></div>
+        <div class="timeline-present-marker" onclick="returnToPresent()" title="Return to Present Day"></div>
+        <!-- Dots will be generated dynamically here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toggle Button -->
+  <div id="toggleButton" onclick="toggleLayersPanel()">⚙</div>
+
+  <!-- Layers Panel -->
+  <div id="layersPanel">
+    <div class="layers-title">Layers</div>
+    <div class="layer-item" onclick="toggleLayer('satellites')">
+      <div class="layer-name">
+        <span class="layer-icon">🛰️</span>
+        Satellites (LEO)
+      </div>
+      <div class="layer-toggle" id="toggle-satellites"></div>
+    </div>
+    <div class="layer-item" onclick="toggleLayer('cityLights')">
+      <div class="layer-name">
+        <span class="layer-icon">🌆</span>
+        City Lights
+      </div>
+      <div class="layer-toggle active" id="toggle-cityLights"></div>
+    </div>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Application Scripts -->
+  <script type="module" src="scripts/main.js"></script>
+
+</body>
+</html>
