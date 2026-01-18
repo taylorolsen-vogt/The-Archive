@@ -1373,7 +1373,7 @@
       // Moon orbital motion (slow 2D orbit, always on screen)
       if (window.moon) {
         const time = Date.now() * 0.00002; // Slow orbit
-        const orbitRadius = 5.0; // Dramatic distance (was 2.5)
+        const orbitRadius = 3.0; // Dramatic distance (was 2.5)
         
         // Circular motion in X-Z plane (orbiting around Y-axis, like a clock face)
         window.moon.position.x = Math.cos(time) * orbitRadius;
