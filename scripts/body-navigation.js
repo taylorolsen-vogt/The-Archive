@@ -113,11 +113,21 @@ function openMoonPanel() {
   const panelTitle = document.getElementById('panelTitle');
   const panelDate = document.getElementById('panelDate');
   const panelDescription = document.getElementById('panelDescription');
+  const panelEvents = document.getElementById('panelEvents');
+  const eventsSection = document.getElementById('eventsSection');
   const breadcrumb = document.getElementById('panelBreadcrumb');
   
   panelTitle.textContent = 'The Moon';
   panelDate.textContent = 'Formed ~4.5 Billion Years Ago';
   panelDescription.textContent = 'Earth\'s only natural satellite. Formed from debris after a Mars-sized body (Theia) collided with early Earth. The Moon stabilizes Earth\'s axial tilt and creates tides.';
+  
+  // Clear events section (no clickable animation buttons on Moon panel)
+  if (panelEvents) {
+    panelEvents.innerHTML = '';
+  }
+  if (eventsSection) {
+    eventsSection.style.display = 'none';
+  }
   
   breadcrumb.innerHTML = `
     <span class="breadcrumb-item" onclick="window.transitionToEarth()" style="cursor: pointer;">Earth</span>
