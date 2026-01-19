@@ -237,9 +237,11 @@ export function updateTimelineVisibility(year) {
  * @param {boolean} isDragging - Whether user is currently dragging
  */
 export function animateEarthRotation(isDragging) {
-  if (!isDragging && earth && nightLights) {
-    earth.rotation.y += 0.0003;
-    nightLights.rotation.y += 0.0003;
+  if (earth && nightLights) {
+    if (!isDragging) {
+      earth.rotation.y += 0.0003;
+      nightLights.rotation.y += 0.0003;
+    }
   }
 }
 
