@@ -179,11 +179,11 @@ window.toggleLayer = toggleLayer;
 window.toggleLayersPanel = toggleLayersPanel;
 
 /**
- * Zoom camera to orbit view (default)
- */
-function zoomToOrbit() {
-  transitionCamera(3.5, 1000);
-}
+* Zoom camera to orbit view (default)
+*/
+//function zoomToOrbit() {
+//  transitionCamera(3.5, 1000);
+//}
 
 /**
  * Transition camera to target position
