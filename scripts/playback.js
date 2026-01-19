@@ -29,7 +29,15 @@ export function togglePlayback() {
     playbackIndicator.classList.add('visible');
     
     buildPlaybackQueue();
-    playbackIndex = 0;
+    
+    // Jump to present day first (2026) - find the closest item to present
+    const presentYear = 2026;
+    playbackIndex = playbackQueue.findIndex(item => item.yearStart >= presentYear);
+    if (playbackIndex === -1) {
+      // If no future items, start from the end (most recent)
+      playbackIndex = playbackQueue.length - 1;
+    }
+    
     playNextItem();
   } else {
     // Stop playback
