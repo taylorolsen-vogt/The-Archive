@@ -1,7 +1,6 @@
 /**
  * THE ARCHIVE - BODY NAVIGATION MODULE
  * Handle camera transitions when bodies are clicked
- * (Click detection is in click-detection.js)
  */
 
 import { setIsTransitioning, getIsTransitioning } from './transition-state.js';

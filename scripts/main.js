@@ -13,8 +13,6 @@ import { initPanelAtmosphere, closePanel } from './panel.js';
 import { renderTimelineDots, updateTimeline } from './timeline.js';
 import { openPanelForTimelineValue } from './navigation.js';
 import { getIsDragging } from './scene.js';
-import { setTransitionFunctions } from './click-detection.js';
-import { transitionToMoon, transitionToEarth } from './body-navigation.js';
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');
@@ -89,29 +87,26 @@ function init() {
   // 2. Initialize Three.js scene
   initScene();
   
-  // 3. Register body transition functions (after modules are loaded)
-  setTransitionFunctions(transitionToMoon, transitionToEarth);
-  
-  // 4. Create Earth, Moon, and atmosphere
+  // 3. Create Earth, Moon, and atmosphere
   createEarth();
   createMoon();
   
-  // 5. Initialize panel glassmorphic background
+  // 4. Initialize panel glassmorphic background
   initPanelAtmosphere();
   
-  // 6. Render initial timeline dots
+  // 5. Render initial timeline dots
   renderTimelineDots();
   
-  // 7. Initialize timeline controls
+  // 6. Initialize timeline controls
   initTimelineControls();
   
-  // 8. Set initial visibility for present day
+  // 7. Set initial visibility for present day
   updateTimelineVisibility(2026);
   
-  // 9. Start main animation loop
+  // 8. Start main animation loop
   animate();
   
-  // 10. Boot sequence animation
+  // 9. Boot sequence animation
   setTimeout(() => {
     bootTitle.classList.add('hidden');
     toolbar.classList.add('active');

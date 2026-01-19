@@ -1,6 +1,6 @@
 /**
  * THE ARCHIVE - CLICK DETECTION MODULE
- * Handles raycasting for celestial body clicks (separate from scene.js to avoid circular imports)
+ * Handles raycasting for celestial body clicks
  */
 
 import { getMoon } from './moon.js';
@@ -11,18 +11,6 @@ import { getIsTransitioning } from './transition-state.js';
 export let camera = null;
 export let raycaster = null;
 export let mouse = null;
-
-// Will be set after click-detection is imported
-let transitionToMoon = null;
-let transitionToEarth = null;
-
-/**
- * Set transition functions (called from body-navigation.js to break circular imports)
- */
-export function setTransitionFunctions(moonTransition, earthTransition) {
-  transitionToMoon = moonTransition;
-  transitionToEarth = earthTransition;
-}
 
 /**
  * Initialize raycaster (called from scene.js)
@@ -71,15 +59,17 @@ export function detectBodyClick(event, rect) {
     const clickedObject = intersects[0].object;
     console.log('✅ Object clicked:', clickedObject.name || 'unnamed');
     
-    // Determine which body was clicked
-    if (clickedObject === moon) {
-      console.log('🌙 MOON CLICKED!');
-      // Don't trigger formation animation on click - just transition
-      if (transitionToMoon) transitionToMoon();
-    } else if (clickedObject === earth) {
-      console.log('🌍 EARTH CLICKED!');
-      if (transitionToEarth) transitionToEarth();
-    }
+    // Import transition functions lazily to avoid circular imports
+    import('./body-navigation.js').then(module => {
+      // Determine which body was clicked
+      if (clickedObject === moon) {
+        console.log('🌙 MOON CLICKED!');
+        module.transitionToMoon();
+      } else if (clickedObject === earth) {
+        console.log('🌍 EARTH CLICKED!');
+        module.transitionToEarth();
+      }
+    });
   } else {
     console.log('❌ No objects intersected');
   }
