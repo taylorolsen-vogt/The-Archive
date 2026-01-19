@@ -1,6 +1,6 @@
 /**
  * THE ARCHIVE - SCENE MODULE
- * Three.js scene, camera, renderer setup and animation loop
+ * Three.js scene, camera, renderer setup and interaction loop
  */
 
 import { initClickDetection, detectBodyClick } from './click-detection.js';
@@ -9,17 +9,57 @@ import { getCurrentBody } from './body-navigation.js';
 // Scene globals
 export let scene, camera, renderer;
 
-// Mouse interaction state
-let isDragging = false;
-let previousMouse = { x: 0, y: 0 };
-let mouseDownPos = { x: 0, y: 0 };
+/* ============================
+   Camera orbit (mobile-first)
+============================ */
 
-/**
- * Initialize Three.js scene, camera, and renderer
- */
+const cameraTarget = new THREE.Vector3(0, 0, 0);
+
+let spherical = {
+  radius: 3.5,
+  theta: Math.PI / 2,
+  phi: Math.PI / 2
+};
+
+const CAMERA_LIMITS = {
+  minRadius: 1.6,
+  maxRadius: 6.0,
+  minPhi: 0.2,
+  maxPhi: Math.PI - 0.2
+};
+
+function updateCameraFromSpherical() {
+  camera.position.x =
+    cameraTarget.x +
+    spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+
+  camera.position.y =
+    cameraTarget.y +
+    spherical.radius * Math.cos(spherical.phi);
+
+  camera.position.z =
+    cameraTarget.z +
+    spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+
+  camera.lookAt(cameraTarget);
+}
+
+/* ============================
+   Interaction state
+============================ */
+
+let isDragging = false;
+let previousPoint = { x: 0, y: 0 };
+let pointerDownPos = { x: 0, y: 0 };
+let lastPinchDistance = null;
+
+/* ============================
+   Init Scene
+============================ */
+
 export function initScene() {
   const earthCanvas = document.getElementById('earthCanvas');
-  
+
   scene = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(
@@ -28,113 +68,91 @@ export function initScene() {
     0.1,
     1000
   );
-  camera.position.z = 3.5;
 
-  renderer = new THREE.WebGLRenderer({ 
+  renderer = new THREE.WebGLRenderer({
     canvas: earthCanvas,
-    antialias: true, 
-    alpha: true 
+    antialias: true,
+    alpha: true
   });
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
 
-  // Initialize click detection
+  updateCameraFromSpherical();
+
+  // Click detection (raycasting etc.)
   initClickDetection(camera);
 
   // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-  scene.add(ambientLight);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
   const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
   sunLight.position.set(5, 2, 3);
   scene.add(sunLight);
-  
-  // Mouse controls
-  earthCanvas.addEventListener('mousedown', onMouseDown);
-  earthCanvas.addEventListener('mousemove', onMouseMove);
-  earthCanvas.addEventListener('mouseup', onMouseUp);
-  earthCanvas.addEventListener('wheel', onWheel);
-  
-  // Touch controls for mobile
-  earthCanvas.addEventListener('touchstart', onTouchStart);
-  earthCanvas.addEventListener('touchmove', onTouchMove);
+
+  // Desktop input
+  earthCanvas.addEventListener('mousedown', onPointerDown);
+  earthCanvas.addEventListener('mousemove', onPointerMove);
+  earthCanvas.addEventListener('mouseup', onPointerUp);
+  earthCanvas.addEventListener('wheel', onWheel, { passive: false });
+
+  // Mobile input
+  earthCanvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  earthCanvas.addEventListener('touchmove', onTouchMove, { passive: false });
   earthCanvas.addEventListener('touchend', onTouchEnd);
-  
+
   return { scene, camera, renderer };
 }
 
-/**
- * Detect if device is mobile
- */
-export function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
+/* ============================
+   Resize
+============================ */
 
-/**
- * Handle window resize
- */
 export function handleResize() {
-  if (camera && renderer) {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-/**
- * Mouse interaction handlers
- */
-function onMouseDown(e) {
+/* ============================
+   Desktop (mouse)
+============================ */
+
+function onPointerDown(e) {
   isDragging = true;
-  previousMouse = { x: e.clientX, y: e.clientY };
-  mouseDownPos = { x: e.clientX, y: e.clientY };
+  previousPoint = { x: e.clientX, y: e.clientY };
+  pointerDownPos = { ...previousPoint };
 }
 
-function onMouseMove(e) {
+function onPointerMove(e) {
   if (!isDragging) return;
-  
-  const deltaX = e.clientX - previousMouse.x;
-  const deltaY = e.clientY - previousMouse.y;
-  
-  // Debug: log dragging
-  if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-    console.log('🎬 Dragging:', { deltaX, deltaY, earth: !!window.earth, moon: !!window.moon });
-  }
-  
-  // Only rotate the currently focused body
-  const currentBody = getCurrentBody();
-  
-  if (currentBody === 'earth') {
-    // Rotate Earth and night lights
-    if (window.earth) {
-      window.earth.rotation.y += deltaX * 0.005;
-      window.earth.rotation.x += deltaY * 0.005;
-    }
-    if (window.nightLights) {
-      window.nightLights.rotation.y += deltaX * 0.005;
-      window.nightLights.rotation.x += deltaY * 0.005;
-    }
-  } else if (currentBody === 'moon') {
-    // Rotate only the Moon
-    if (window.moon) {
-      window.moon.rotation.y += deltaX * 0.005;
-      window.moon.rotation.x += deltaY * 0.005;
-    }
-  }
-  
-  previousMouse = { x: e.clientX, y: e.clientY };
+
+  const dx = e.clientX - previousPoint.x;
+  const dy = e.clientY - previousPoint.y;
+
+  const ROTATE_SPEED = 0.005;
+
+  spherical.theta -= dx * ROTATE_SPEED;
+  spherical.phi -= dy * ROTATE_SPEED;
+
+  spherical.phi = clamp(
+    spherical.phi,
+    CAMERA_LIMITS.minPhi,
+    CAMERA_LIMITS.maxPhi
+  );
+
+  updateCameraFromSpherical();
+  previousPoint = { x: e.clientX, y: e.clientY };
 }
 
-function onMouseUp(e) {
+function onPointerUp(e) {
   isDragging = false;
-  
-  // Check if it was a click (not a drag)
-  const moveThreshold = 5;
-  const moved = Math.abs(e.clientX - mouseDownPos.x) > moveThreshold || 
-                Math.abs(e.clientY - mouseDownPos.y) > moveThreshold;
-  
+
+  const moved =
+    Math.abs(e.clientX - pointerDownPos.x) > 5 ||
+    Math.abs(e.clientY - pointerDownPos.y) > 5;
+
   if (!moved) {
-    // Handle body click
     const rect = e.target.getBoundingClientRect();
     detectBodyClick(e, rect);
   }
@@ -142,68 +160,111 @@ function onMouseUp(e) {
 
 function onWheel(e) {
   e.preventDefault();
-  camera.position.z += e.deltaY * 0.001;
-  camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
+
+  spherical.radius += e.deltaY * 0.002;
+  spherical.radius = clamp(
+    spherical.radius,
+    CAMERA_LIMITS.minRadius,
+    CAMERA_LIMITS.maxRadius
+  );
+
+  updateCameraFromSpherical();
 }
 
-/**
- * Touch handlers for mobile
- */
+/* ============================
+   Mobile (touch)
+============================ */
+
 function onTouchStart(e) {
   if (e.touches.length === 1) {
     isDragging = true;
-    previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    mouseDownPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    previousPoint = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY
+    };
+    pointerDownPos = { ...previousPoint };
+  } else if (e.touches.length === 2) {
+    lastPinchDistance = pinchDistance(e.touches);
   }
 }
 
 function onTouchMove(e) {
-  if (!isDragging || e.touches.length !== 1) return;
-  
-  const deltaX = e.touches[0].clientX - previousMouse.x;
-  const deltaY = e.touches[0].clientY - previousMouse.y;
-  
-  // Get current focused body
-  //const { getCurrentBody } = await import('./body-navigation.js');
-  //const currentBody = getCurrentBody?.() || 'earth';
-  
-  if (currentBody === 'earth') {
-    if (window.earth) {
-      window.earth.rotation.y += deltaX * 0.005;
-      window.earth.rotation.x += deltaY * 0.005;
-    }
-    if (window.nightLights) {
-      window.nightLights.rotation.y += deltaX * 0.005;
-      window.nightLights.rotation.x += deltaY * 0.005;
-    }
-  } else if (currentBody === 'moon') {
-    if (window.moon) {
-      window.moon.rotation.y += deltaX * 0.005;
-      window.moon.rotation.x += deltaY * 0.005;
-    }
+  e.preventDefault();
+
+  // Pinch zoom
+  if (e.touches.length === 2) {
+    const dist = pinchDistance(e.touches);
+    const delta = dist - lastPinchDistance;
+
+    spherical.radius -= delta * 0.01;
+    spherical.radius = clamp(
+      spherical.radius,
+      CAMERA_LIMITS.minRadius,
+      CAMERA_LIMITS.maxRadius
+    );
+
+    updateCameraFromSpherical();
+    lastPinchDistance = dist;
+    return;
   }
-  
-  previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+  // One finger orbit
+  if (!isDragging || e.touches.length !== 1) return;
+
+  const dx = e.touches[0].clientX - previousPoint.x;
+  const dy = e.touches[0].clientY - previousPoint.y;
+
+  const ROTATE_SPEED = 0.005;
+
+  spherical.theta -= dx * ROTATE_SPEED;
+  spherical.phi -= dy * ROTATE_SPEED;
+
+  spherical.phi = clamp(
+    spherical.phi,
+    CAMERA_LIMITS.minPhi,
+    CAMERA_LIMITS.maxPhi
+  );
+
+  updateCameraFromSpherical();
+
+  previousPoint = {
+    x: e.touches[0].clientX,
+    y: e.touches[0].clientY
+  };
 }
 
 function onTouchEnd(e) {
   isDragging = false;
-  
-  // Check if it was a tap (not a drag)
-  const moveThreshold = 10;
-  const moved = Math.abs(e.changedTouches[0].clientX - mouseDownPos.x) > moveThreshold || 
-                Math.abs(e.changedTouches[0].clientY - mouseDownPos.y) > moveThreshold;
-  
-  if (!moved && e.changedTouches.length === 0) {
-    // Handle body tap
+
+  if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+  const touch = e.changedTouches[0];
+  const moved =
+    Math.abs(touch.clientX - pointerDownPos.x) > 10 ||
+    Math.abs(touch.clientY - pointerDownPos.y) > 10;
+
+  if (!moved) {
     const rect = e.target.getBoundingClientRect();
-    detectBodyClick(e.changedTouches[0], rect);
+    detectBodyClick(touch, rect);
   }
+
+  lastPinchDistance = null;
 }
 
-/**
- * Check if user is currently dragging
- */
+/* ============================
+   Utils
+============================ */
+
+function pinchDistance(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
 export function getIsDragging() {
   return isDragging;
 }

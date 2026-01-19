@@ -149,3 +149,33 @@ canvas {
   color: rgba(77, 153, 204, 0.8);
   margin-right: 6px;
 }
+/* Prevent iOS/Android from interpreting touches as page scroll/zoom */
+canvas {
+  touch-action: none;
+  /* pointer/touch gesture control */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Prevent “rubber band” scroll / accidental page moves while dragging */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* ===== Mobile / Touch Interaction Guards ===== */
+/* Applies specifically to the Three.js canvas */
+
+#earthCanvas {
+  touch-action: none;
+  /* Disable browser gestures */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent page rubber-banding while interacting with the canvas */
+html,
+body {
+  overscroll-behavior: none;
+}
