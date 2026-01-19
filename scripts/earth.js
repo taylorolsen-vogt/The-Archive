@@ -239,8 +239,8 @@ export function updateTimelineVisibility(year) {
 export function animateEarthRotation(isDragging) {
   if (earth && nightLights) {
     if (!isDragging) {
-      earth.rotation.y += 0.0003;
-      nightLights.rotation.y += 0.0003;
+      earth.rotation.y += 0.001;
+      nightLights.rotation.y += 0.001;
     }
   }
 }
