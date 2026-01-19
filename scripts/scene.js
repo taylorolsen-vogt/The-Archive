@@ -164,8 +164,8 @@ function onTouchMove(e) {
   const deltaY = e.touches[0].clientY - previousMouse.y;
   
   // Get current focused body
-  const { getCurrentBody } = await import('./body-navigation.js');
-  const currentBody = getCurrentBody?.() || 'earth';
+  //const { getCurrentBody } = await import('./body-navigation.js');
+  //const currentBody = getCurrentBody?.() || 'earth';
   
   if (currentBody === 'earth') {
     if (window.earth) {
