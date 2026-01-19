@@ -6,7 +6,7 @@
 
 import { setTransitionFunctions } from './click-detection.js';
 import { scene, camera, renderer } from './scene.js';
-import { getMoon } from './moon.js';
+import { getMoon, setMoonOrbitActive, positionMoonForFocus } from './moon.js';
 
 // Register transition functions with click-detection module
 setTransitionFunctions(transitionToMoon, transitionToEarth);
@@ -27,9 +27,18 @@ export function transitionToMoon() {
   const moon = getMoon();
   if (!moon) return;
   
+  // Stop the Moon from orbiting while we're focused on it
+  setMoonOrbitActive(false);
+  
+  // Position Moon in front so it's clearly visible
+  positionMoonForFocus();
+  
   const moonPos = moon.position.clone();
+  
+  // Position camera in front of Moon at a good distance (0.5 units away from Moon surface)
+  // Moon is about 0.068 units in radius, so position camera ~1.5 units away
   const targetCameraPos = moonPos.clone();
-  targetCameraPos.z += 0.5;
+  targetCameraPos.z += 1.5; // Move back so Moon is visible and centered
   
   animateCameraToPosition(targetCameraPos, moonPos, 1500);
   updateBodyBreadcrumb('moon');
@@ -44,6 +53,9 @@ export function transitionToEarth() {
   
   console.log('📡 Transitioning to Earth view...');
   currentBody = 'earth';
+  
+  // Resume Moon orbiting
+  setMoonOrbitActive(true);
   
   const targetCameraPos = new THREE.Vector3(0, 0, 3.5);
   const targetLookAt = new THREE.Vector3(0, 0, 0);

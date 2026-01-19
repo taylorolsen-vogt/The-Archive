@@ -13,6 +13,9 @@ let moonFormationActive = false;
 let theiaImpactor = null;
 let moonFormationParticles = [];
 
+// Track if moon should orbit
+let moonOrbitActive = true;
+
 /**
  * Create Moon mesh
  */
@@ -42,7 +45,7 @@ export function createMoon() {
  * Moon orbits in X-Z plane (like a clock face) at 3 units radius
  */
 export function updateMoonOrbit() {
-  if (moon && moon.visible) {
+  if (moon && moon.visible && moonOrbitActive) {
     const time = Date.now() * 0.00002; // Slow orbit
     const orbitRadius = 3.0; // User's preferred distance
     
@@ -53,6 +56,23 @@ export function updateMoonOrbit() {
     
     // Rotate Moon on its axis
     moon.rotation.y += 0.0002;
+  }
+}
+
+/**
+ * Set Moon orbit state
+ */
+export function setMoonOrbitActive(active) {
+  moonOrbitActive = active;
+}
+
+/**
+ * Position Moon in front of camera when focusing on it
+ */
+export function positionMoonForFocus() {
+  if (moon) {
+    // Move Moon to front-right position, clearly visible
+    moon.position.set(2.0, 0, 0);
   }
 }
 
