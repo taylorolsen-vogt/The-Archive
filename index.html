@@ -102,7 +102,16 @@
 
   <!-- Layers Panel -->
   <div id="layersPanel">
-    <div class="layers-title">Layers</div>
+    <div class="layers-title">Layers & Overlays</div>
+    
+    <div class="layer-item" onclick="toggleLayer('grid')">
+      <div class="layer-name">
+        <span class="layer-icon">🔲</span>
+        Grid
+      </div>
+      <div class="layer-toggle" id="toggle-grid"></div>
+    </div>
+    
     <div class="layer-item" onclick="toggleLayer('satellites')">
       <div class="layer-name">
         <span class="layer-icon">🛰️</span>
@@ -110,12 +119,37 @@
       </div>
       <div class="layer-toggle" id="toggle-satellites"></div>
     </div>
+    
     <div class="layer-item" onclick="toggleLayer('cityLights')">
       <div class="layer-name">
         <span class="layer-icon">🌆</span>
         City Lights
       </div>
       <div class="layer-toggle active" id="toggle-cityLights"></div>
+    </div>
+    
+    <div class="layer-item" onclick="toggleLayer('populationDensity')">
+      <div class="layer-name">
+        <span class="layer-icon">👥</span>
+        Population Density
+      </div>
+      <div class="layer-toggle" id="toggle-populationDensity"></div>
+    </div>
+    
+    <div class="layer-item" onclick="toggleLayer('tradeRoutes')">
+      <div class="layer-name">
+        <span class="layer-icon">🚢</span>
+        Trade Routes
+      </div>
+      <div class="layer-toggle" id="toggle-tradeRoutes"></div>
+    </div>
+    
+    <div class="layer-item" onclick="toggleLayer('flightRoutes')">
+      <div class="layer-name">
+        <span class="layer-icon">✈️</span>
+        Flight Routes
+      </div>
+      <div class="layer-toggle" id="toggle-flightRoutes"></div>
     </div>
   </div>
 

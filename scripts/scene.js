@@ -55,7 +55,19 @@ export function initScene() {
   earthCanvas.addEventListener('mouseup', onMouseUp);
   earthCanvas.addEventListener('wheel', onWheel);
   
+  // Touch controls for mobile
+  earthCanvas.addEventListener('touchstart', onTouchStart);
+  earthCanvas.addEventListener('touchmove', onTouchMove);
+  earthCanvas.addEventListener('touchend', onTouchEnd);
+  
   return { scene, camera, renderer };
+}
+
+/**
+ * Detect if device is mobile
+ */
+export function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 /**
@@ -132,6 +144,61 @@ function onWheel(e) {
   e.preventDefault();
   camera.position.z += e.deltaY * 0.001;
   camera.position.z = Math.max(1.5, Math.min(5, camera.position.z));
+}
+
+/**
+ * Touch handlers for mobile
+ */
+function onTouchStart(e) {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    mouseDownPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+}
+
+function onTouchMove(e) {
+  if (!isDragging || e.touches.length !== 1) return;
+  
+  const deltaX = e.touches[0].clientX - previousMouse.x;
+  const deltaY = e.touches[0].clientY - previousMouse.y;
+  
+  // Get current focused body
+  const { getCurrentBody } = await import('./body-navigation.js');
+  const currentBody = getCurrentBody?.() || 'earth';
+  
+  if (currentBody === 'earth') {
+    if (window.earth) {
+      window.earth.rotation.y += deltaX * 0.005;
+      window.earth.rotation.x += deltaY * 0.005;
+    }
+    if (window.nightLights) {
+      window.nightLights.rotation.y += deltaX * 0.005;
+      window.nightLights.rotation.x += deltaY * 0.005;
+    }
+  } else if (currentBody === 'moon') {
+    if (window.moon) {
+      window.moon.rotation.y += deltaX * 0.005;
+      window.moon.rotation.x += deltaY * 0.005;
+    }
+  }
+  
+  previousMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}
+
+function onTouchEnd(e) {
+  isDragging = false;
+  
+  // Check if it was a tap (not a drag)
+  const moveThreshold = 10;
+  const moved = Math.abs(e.changedTouches[0].clientX - mouseDownPos.x) > moveThreshold || 
+                Math.abs(e.changedTouches[0].clientY - mouseDownPos.y) > moveThreshold;
+  
+  if (!moved && e.changedTouches.length === 0) {
+    // Handle body tap
+    const rect = e.target.getBoundingClientRect();
+    detectBodyClick(e.changedTouches[0], rect);
+  }
 }
 
 /**

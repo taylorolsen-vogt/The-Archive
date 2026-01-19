@@ -54,8 +54,12 @@ const eraTextures = {
 export function createEarth() {
   const textureLoader = new THREE.TextureLoader();
   
+  // Scale Earth smaller on mobile devices
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const earthScale = isMobile ? 0.55 : 0.85;
+  
   // Earth with day texture
-  const earthGeometry = new THREE.SphereGeometry(0.85, 128, 128);
+  const earthGeometry = new THREE.SphereGeometry(earthScale, 128, 128);
   const earthMaterial = new THREE.MeshPhongMaterial({
     map: textureLoader.load('./textures/earth_day.jpg'),
     specular: 0x333333,
@@ -68,7 +72,7 @@ export function createEarth() {
   window.earth = earth;
 
   // Night lights layer with shader
-  const nightGeometry = new THREE.SphereGeometry(0.851, 128, 128);
+  const nightGeometry = new THREE.SphereGeometry(earthScale + 0.001, 128, 128);
   const nightTexture = textureLoader.load('./textures/earth_night.jpg');
   const nightMaterial = new THREE.ShaderMaterial({
     uniforms: {

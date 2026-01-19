@@ -8,6 +8,14 @@ import { formatYear } from './utils.js';
 
 // Current timeline state
 let currentLevel = timelineData;
+let currentYear = 2026; // Start at present
+
+/**
+ * Get current timeline year
+ */
+export function getCurrentTimelineYear() {
+  return currentYear;
+}
 
 /**
  * Render timeline dots for current level
@@ -75,6 +83,9 @@ export function updateTimeline(value, isHover = false) {
       closestItem = item;
     }
   }
+  
+  // Update current year for layer filtering
+  currentYear = closestItem.yearStart;
   
   // Only update if meaningful change (avoid flicker on small movements)
   const slider = document.getElementById('timelineSlider');
