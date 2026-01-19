@@ -13,6 +13,8 @@ import { initPanelAtmosphere, closePanel } from './panel.js';
 import { renderTimelineDots, updateTimeline } from './timeline.js';
 import { openPanelForTimelineValue } from './navigation.js';
 import { getIsDragging } from './scene.js';
+import { togglePlayback } from './playback.js';
+import { toggleLayer, toggleLayersPanel, returnToPresent } from './layers.js';
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');
@@ -113,6 +115,13 @@ function init() {
     earthCanvas.classList.add('visible');
   }, 1000);
 }
+
+// Expose functions to global window for HTML onclick handlers
+window.togglePlayback = togglePlayback;
+window.toggleLayer = toggleLayer;
+window.toggleLayersPanel = toggleLayersPanel;
+window.returnToPresent = returnToPresent;
+window.closePanel = closePanel;
 
 // Set up resize handler
 window.addEventListener('resize', onResize);
