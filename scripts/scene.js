@@ -83,6 +83,11 @@ function onMouseMove(e) {
   const deltaX = e.clientX - previousMouse.x;
   const deltaY = e.clientY - previousMouse.y;
   
+  // Debug: log dragging
+  if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
+    console.log('🎬 Dragging:', { deltaX, deltaY, earth: !!window.earth, moon: !!window.moon });
+  }
+  
   // Rotate whichever body is being viewed
   if (window.earth) {
     window.earth.rotation.y += deltaX * 0.005;
