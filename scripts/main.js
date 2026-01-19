@@ -11,10 +11,10 @@ import { createMoon, updateMoonOrbit } from './moon.js';
 import { updateSatellites } from './satellites.js';
 import { initPanelAtmosphere, closePanel } from './panel.js';
 import { renderTimelineDots, updateTimeline } from './timeline.js';
-import { openPanelForTimelineValue } from './navigation.js';
+import { openPanelForTimelineValue, returnToPresent } from './navigation.js';
 import { getIsDragging } from './scene.js';
 import { togglePlayback } from './playback.js';
-import { toggleLayer, toggleLayersPanel, returnToPresent } from './layers.js';
+import { toggleLayer, toggleLayersPanel } from './layers.js';
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');
