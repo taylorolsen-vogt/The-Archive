@@ -5,6 +5,7 @@
 
 import { getTimelineData } from './timeline.js';
 import { openPanelForTimelineValue } from './navigation.js';
+import { changeEarthTexture } from './earth.js';
 
 // Playback state
 let isPlaying = false;
@@ -96,6 +97,9 @@ function playNextItem() {
   // Update playback indicator position on timeline
   const playbackIndicator = document.getElementById('playbackIndicator');
   playbackIndicator.style.left = `${item.value}%`;
+  
+  // Change Earth texture based on the era
+  changeEarthTexture(item.id);
   
   // Open panel for this item
   openPanelForTimelineValue(item.value);
