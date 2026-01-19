@@ -216,7 +216,7 @@ function onTouchMove(e) {
 
   const ROTATE_SPEED = 0.005;
 
-  spherical.theta -= dx * ROTATE_SPEED;
+  spherical.theta += dx * ROTATE_SPEED;
   spherical.phi += dy * ROTATE_SPEED;
 
   spherical.phi = clamp(
