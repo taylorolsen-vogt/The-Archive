@@ -5,12 +5,23 @@
 
 import { getMoon, triggerMoonFormation } from './moon.js';
 import { getEarth } from './earth.js';
-import { transitionToMoon, transitionToEarth } from './body-navigation.js';
 
 // Will be set by scene.js
 export let camera = null;
 export let raycaster = null;
 export let mouse = null;
+
+// Will be set after click-detection is imported
+let transitionToMoon = null;
+let transitionToEarth = null;
+
+/**
+ * Set transition functions (called from body-navigation.js to break circular imports)
+ */
+export function setTransitionFunctions(moonTransition, earthTransition) {
+  transitionToMoon = moonTransition;
+  transitionToEarth = earthTransition;
+}
 
 /**
  * Initialize raycaster (called from scene.js)
@@ -57,10 +68,10 @@ export function detectBodyClick(event, rect) {
     if (clickedObject === moon) {
       console.log('🌙 MOON CLICKED!');
       triggerMoonFormation();
-      transitionToMoon();
+      if (transitionToMoon) transitionToMoon();
     } else if (clickedObject === earth) {
       console.log('🌍 EARTH CLICKED!');
-      transitionToEarth();
+      if (transitionToEarth) transitionToEarth();
     }
   } else {
     console.log('❌ No objects intersected');

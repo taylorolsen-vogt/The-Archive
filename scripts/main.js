@@ -13,6 +13,7 @@ import { initPanelAtmosphere, closePanel } from './panel.js';
 import { renderTimelineDots, updateTimeline } from './timeline.js';
 import { openPanelForTimelineValue } from './navigation.js';
 import { getIsDragging } from './scene.js';
+import { getCurrentBody } from './body-navigation.js'; // Import to register transition functions
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');

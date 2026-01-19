@@ -1,11 +1,15 @@
 /**
  * THE ARCHIVE - BODY NAVIGATION MODULE
  * Handle camera transitions when bodies are clicked
- * (Click detection is now in scene.js for proper event handling)
+ * (Click detection is in click-detection.js)
  */
 
+import { setTransitionFunctions } from './click-detection.js';
 import { scene, camera, renderer } from './scene.js';
 import { getMoon } from './moon.js';
+
+// Register transition functions with click-detection module
+setTransitionFunctions(transitionToMoon, transitionToEarth);
 
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
