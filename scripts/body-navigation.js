@@ -12,9 +12,6 @@ import { getMoon, setMoonOrbitActive, positionMoonForFocus } from './moon.js';
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
 
-// Register transition functions with click-detection module
-setTransitionFunctions(transitionToMoon, transitionToEarth);
-
 /**
  * Transition camera to Moon-centric view
  * Called from scene.js when Moon is clicked
@@ -168,6 +165,9 @@ function openEarthPanel() {
 export function getCurrentBody() {
   return currentBody;
 }
+
+// Register transition functions with click-detection module (after function definitions)
+setTransitionFunctions(transitionToMoon, transitionToEarth);
 
 // Make globally accessible for breadcrumb onclick
 window.transitionToEarth = transitionToEarth;
