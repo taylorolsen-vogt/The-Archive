@@ -4,7 +4,6 @@
  * (Click detection is in click-detection.js)
  */
 
-import { setTransitionFunctions } from './click-detection.js';
 import { setIsTransitioning, getIsTransitioning } from './transition-state.js';
 import { scene, camera, renderer } from './scene.js';
 import { getMoon, setMoonOrbitActive, positionMoonForFocus } from './moon.js';
@@ -165,9 +164,6 @@ function openEarthPanel() {
 export function getCurrentBody() {
   return currentBody;
 }
-
-// Register transition functions with click-detection module (after function definitions)
-setTransitionFunctions(transitionToMoon, transitionToEarth);
 
 // Make globally accessible for breadcrumb onclick
 window.transitionToEarth = transitionToEarth;
