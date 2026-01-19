@@ -33,9 +33,9 @@ export function transitionToMoon() {
   
   const moonPos = moon.position.clone();
   
-  // Position camera closer to Moon for a more zoomed-in view
+  // Position camera further from Moon due to 4.5x scale
   const targetCameraPos = moonPos.clone();
-  targetCameraPos.z += 0.8; // Zoomed in closer than Earth view
+  targetCameraPos.z += 2.0; // Further back to see the scaled Moon
   
   animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
     setIsTransitioning(false);
