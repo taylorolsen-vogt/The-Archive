@@ -67,7 +67,8 @@ export function detectBodyClick(event, rect) {
     // Determine which body was clicked
     if (clickedObject === moon) {
       console.log('🌙 MOON CLICKED!');
-      triggerMoonFormation();
+      // Don't trigger formation animation on click - just transition
+      // triggerMoonFormation(); 
       if (transitionToMoon) transitionToMoon();
     } else if (clickedObject === earth) {
       console.log('🌍 EARTH CLICKED!');

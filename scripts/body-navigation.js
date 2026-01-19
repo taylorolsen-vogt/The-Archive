@@ -50,11 +50,7 @@ export function transitionToEarth() {
   
   animateCameraToPosition(targetCameraPos, targetLookAt, 1500);
   updateBodyBreadcrumb('earth');
-  
-  const panel = document.getElementById('infoPanel');
-  if (panel && panel.classList.contains('visible')) {
-    panel.classList.remove('visible');
-  }
+  openEarthPanel();
 }
 
 /**
@@ -120,6 +116,19 @@ function openMoonPanel() {
   panel.style.setProperty('--panel-accent', '#c0c0c0');
   panel.setAttribute('data-body', 'moon');
   panel.classList.add('visible');
+}
+
+/**
+ * Open Earth info panel (restore when returning from Moon)
+ */
+function openEarthPanel() {
+  const panel = document.getElementById('infoPanel');
+  
+  // Simply hide the panel when back at Earth
+  // The timeline/Earth info will be shown through other UI elements
+  if (panel && panel.classList.contains('visible')) {
+    panel.classList.remove('visible');
+  }
 }
 
 /**
