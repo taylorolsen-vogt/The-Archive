@@ -71,9 +71,10 @@ export function setMoonOrbitActive(active) {
  */
 export function positionMoonForFocus() {
   if (moon) {
-    // Move Moon to front-right position, lifted up on Y axis
-    // This makes it peek out from behind Earth's top
-    moon.position.set(2.0, 1.5, 0);
+    // Move Moon: lifted up on Y axis, and back slightly on Z so it's visible
+    // Y: lifted up so it peeks over Earth
+    // Z: slightly back so camera can see it better
+    moon.position.set(2.0, 1.5, 0.5);
   }
 }
 

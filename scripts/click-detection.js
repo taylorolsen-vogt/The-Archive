@@ -3,8 +3,9 @@
  * Handles raycasting for celestial body clicks (separate from scene.js to avoid circular imports)
  */
 
-import { getMoon, triggerMoonFormation } from './moon.js';
+import { getMoon } from './moon.js';
 import { getEarth } from './earth.js';
+import { getIsTransitioning } from './body-navigation.js';
 
 // Will be set by scene.js
 export let camera = null;
@@ -36,6 +37,12 @@ export function initClickDetection(cameraRef) {
  * Detect clicks on celestial bodies using raycaster
  */
 export function detectBodyClick(event, rect) {
+  // Don't allow clicks during transitions
+  if (getIsTransitioning()) {
+    console.log('⏸️ Click ignored - transition in progress');
+    return;
+  }
+  
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   
@@ -68,7 +75,6 @@ export function detectBodyClick(event, rect) {
     if (clickedObject === moon) {
       console.log('🌙 MOON CLICKED!');
       // Don't trigger formation animation on click - just transition
-      // triggerMoonFormation(); 
       if (transitionToMoon) transitionToMoon();
     } else if (clickedObject === earth) {
       console.log('🌍 EARTH CLICKED!');

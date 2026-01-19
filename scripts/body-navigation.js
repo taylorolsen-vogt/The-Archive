@@ -14,14 +14,22 @@ setTransitionFunctions(transitionToMoon, transitionToEarth);
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
 
+// Track if we're currently transitioning
+let isTransitioning = false;
+
+export function getIsTransitioning() {
+  return isTransitioning;
+}
+
 /**
  * Transition camera to Moon-centric view
  * Called from scene.js when Moon is clicked
  */
 export function transitionToMoon() {
-  if (currentBody === 'moon') return;
+  if (currentBody === 'moon' || isTransitioning) return;
   
   console.log('📡 Transitioning to Moon view...');
+  isTransitioning = true;
   currentBody = 'moon';
   
   const moon = getMoon();
@@ -39,7 +47,9 @@ export function transitionToMoon() {
   const targetCameraPos = moonPos.clone();
   targetCameraPos.z += 0.8; // Zoomed in closer than Earth view
   
-  animateCameraToPosition(targetCameraPos, moonPos, 1500);
+  animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
+    isTransitioning = false;
+  });
   updateBodyBreadcrumb('moon');
   openMoonPanel();
 }
@@ -48,9 +58,10 @@ export function transitionToMoon() {
  * Transition camera back to Earth-centric view
  */
 export function transitionToEarth() {
-  if (currentBody === 'earth') return;
+  if (currentBody === 'earth' || isTransitioning) return;
   
   console.log('📡 Transitioning to Earth view...');
+  isTransitioning = true;
   currentBody = 'earth';
   
   // Resume Moon orbiting
@@ -59,7 +70,9 @@ export function transitionToEarth() {
   const targetCameraPos = new THREE.Vector3(0, 0, 3.5);
   const targetLookAt = new THREE.Vector3(0, 0, 0);
   
-  animateCameraToPosition(targetCameraPos, targetLookAt, 1500);
+  animateCameraToPosition(targetCameraPos, targetLookAt, 1500, () => {
+    isTransitioning = false;
+  });
   updateBodyBreadcrumb('earth');
   openEarthPanel();
 }
@@ -67,7 +80,7 @@ export function transitionToEarth() {
 /**
  * Animate camera to target position
  */
-function animateCameraToPosition(targetPosition, targetLookAt, duration) {
+function animateCameraToPosition(targetPosition, targetLookAt, duration, onComplete) {
   const startPosition = camera.position.clone();
   const startLookAt = new THREE.Vector3(0, 0, 0);
   
@@ -90,6 +103,8 @@ function animateCameraToPosition(targetPosition, targetLookAt, duration) {
     
     if (progress < 1) {
       requestAnimationFrame(animate);
+    } else if (onComplete) {
+      onComplete();
     }
   }
   
