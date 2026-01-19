@@ -5,7 +5,7 @@
 
 import { getMoon } from './moon.js';
 import { getEarth } from './earth.js';
-import { getIsTransitioning } from './body-navigation.js';
+import { getIsTransitioning } from './transition-state.js';
 
 // Will be set by scene.js
 export let camera = null;

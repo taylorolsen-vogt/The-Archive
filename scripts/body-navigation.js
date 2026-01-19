@@ -5,31 +5,26 @@
  */
 
 import { setTransitionFunctions } from './click-detection.js';
+import { setIsTransitioning, getIsTransitioning } from './transition-state.js';
 import { scene, camera, renderer } from './scene.js';
 import { getMoon, setMoonOrbitActive, positionMoonForFocus } from './moon.js';
-
-// Register transition functions with click-detection module
-setTransitionFunctions(transitionToMoon, transitionToEarth);
 
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
 
-// Track if we're currently transitioning
-let isTransitioning = false;
-
-export function getIsTransitioning() {
-  return isTransitioning;
-}
+// Register transition functions with click-detection module
+setTransitionFunctions(transitionToMoon, transitionToEarth);
 
 /**
  * Transition camera to Moon-centric view
  * Called from scene.js when Moon is clicked
  */
 export function transitionToMoon() {
-  if (currentBody === 'moon' || isTransitioning) return;
+  if (currentBody === 'moon' || getIsTransitioning()) return;
   
   console.log('📡 Transitioning to Moon view...');
-  isTransitioning = true;
+  setIsTransitioning(true);
+
   currentBody = 'moon';
   
   const moon = getMoon();
@@ -48,7 +43,7 @@ export function transitionToMoon() {
   targetCameraPos.z += 0.8; // Zoomed in closer than Earth view
   
   animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
-    isTransitioning = false;
+    setIsTransitioning(false);
   });
   updateBodyBreadcrumb('moon');
   openMoonPanel();
@@ -58,10 +53,10 @@ export function transitionToMoon() {
  * Transition camera back to Earth-centric view
  */
 export function transitionToEarth() {
-  if (currentBody === 'earth' || isTransitioning) return;
+  if (currentBody === 'earth' || getIsTransitioning()) return;
   
   console.log('📡 Transitioning to Earth view...');
-  isTransitioning = true;
+  setIsTransitioning(true);
   currentBody = 'earth';
   
   // Resume Moon orbiting
@@ -71,7 +66,7 @@ export function transitionToEarth() {
   const targetLookAt = new THREE.Vector3(0, 0, 0);
   
   animateCameraToPosition(targetCameraPos, targetLookAt, 1500, () => {
-    isTransitioning = false;
+    setIsTransitioning(false);
   });
   updateBodyBreadcrumb('earth');
   openEarthPanel();
