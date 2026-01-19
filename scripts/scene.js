@@ -4,6 +4,7 @@
  */
 
 import { initClickDetection, detectBodyClick } from './click-detection.js';
+import { getCurrentBody } from './body-navigation.js';
 
 // Scene globals
 export let scene, camera, renderer;
@@ -88,18 +89,25 @@ function onMouseMove(e) {
     console.log('🎬 Dragging:', { deltaX, deltaY, earth: !!window.earth, moon: !!window.moon });
   }
   
-  // Rotate whichever body is being viewed
-  if (window.earth) {
-    window.earth.rotation.y += deltaX * 0.005;
-    window.earth.rotation.x += deltaY * 0.005;
-  }
-  if (window.nightLights) {
-    window.nightLights.rotation.y += deltaX * 0.005;
-    window.nightLights.rotation.x += deltaY * 0.005;
-  }
-  if (window.moon) {
-    window.moon.rotation.y += deltaX * 0.005;
-    window.moon.rotation.x += deltaY * 0.005;
+  // Only rotate the currently focused body
+  const currentBody = getCurrentBody();
+  
+  if (currentBody === 'earth') {
+    // Rotate Earth and night lights
+    if (window.earth) {
+      window.earth.rotation.y += deltaX * 0.005;
+      window.earth.rotation.x += deltaY * 0.005;
+    }
+    if (window.nightLights) {
+      window.nightLights.rotation.y += deltaX * 0.005;
+      window.nightLights.rotation.x += deltaY * 0.005;
+    }
+  } else if (currentBody === 'moon') {
+    // Rotate only the Moon
+    if (window.moon) {
+      window.moon.rotation.y += deltaX * 0.005;
+      window.moon.rotation.x += deltaY * 0.005;
+    }
   }
   
   previousMouse = { x: e.clientX, y: e.clientY };

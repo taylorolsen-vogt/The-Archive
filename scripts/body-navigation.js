@@ -5,7 +5,7 @@
 
 import { setIsTransitioning, getIsTransitioning } from './transition-state.js';
 import { scene, camera, renderer } from './scene.js';
-import { getMoon, setMoonOrbitActive, positionMoonForFocus, resetMoonSize } from './moon.js';
+import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
 
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
@@ -28,14 +28,13 @@ export function transitionToMoon() {
   // Stop the Moon from orbiting while we're focused on it
   setMoonOrbitActive(false);
   
-  // Position Moon in front so it's clearly visible
-  positionMoonForFocus();
-  
+  // Get current Moon position and scale it up
   const moonPos = moon.position.clone();
+  moon.scale.set(2.5, 2.5, 2.5);
   
-  // Position camera closer to Moon for a zoomed-in view
+  // Position camera relative to Moon's current location
   const targetCameraPos = moonPos.clone();
-  targetCameraPos.z += 1.2; // Closer than Earth view to frame the scaled Moon
+  targetCameraPos.z += 1.2; // Position camera 1.2 units in front of Moon
   
   animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
     setIsTransitioning(false);
