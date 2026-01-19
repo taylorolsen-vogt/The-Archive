@@ -5,7 +5,7 @@
 
 import { setIsTransitioning, getIsTransitioning } from './transition-state.js';
 import { scene, camera, renderer } from './scene.js';
-import { getMoon, setMoonOrbitActive, positionMoonForFocus } from './moon.js';
+import { getMoon, setMoonOrbitActive, positionMoonForFocus, resetMoonSize } from './moon.js';
 
 // Current focused body
 let currentBody = 'earth'; // 'earth' or 'moon'
@@ -54,8 +54,9 @@ export function transitionToEarth() {
   setIsTransitioning(true);
   currentBody = 'earth';
   
-  // Resume Moon orbiting
+  // Resume Moon orbiting and reset size
   setMoonOrbitActive(true);
+  resetMoonSize();
   
   const targetCameraPos = new THREE.Vector3(0, 0, 3.5);
   const targetLookAt = new THREE.Vector3(0, 0, 0);

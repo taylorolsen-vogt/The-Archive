@@ -75,6 +75,17 @@ export function positionMoonForFocus() {
     // Y: lifted up so it peeks over Earth
     // Z: slightly back so camera can see it better
     moon.position.set(2.0, 1.5, 0.5);
+    // Scale Moon larger when focused
+    moon.scale.set(2.5, 2.5, 2.5);
+  }
+}
+
+/**
+ * Reset Moon to normal size and position
+ */
+export function resetMoonSize() {
+  if (moon) {
+    moon.scale.set(1, 1, 1);
   }
 }
 
