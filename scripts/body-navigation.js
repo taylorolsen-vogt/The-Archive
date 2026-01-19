@@ -35,10 +35,9 @@ export function transitionToMoon() {
   
   const moonPos = moon.position.clone();
   
-  // Position camera in front of Moon at a good distance (0.5 units away from Moon surface)
-  // Moon is about 0.068 units in radius, so position camera ~1.5 units away
+  // Position camera closer to Moon for a more zoomed-in view
   const targetCameraPos = moonPos.clone();
-  targetCameraPos.z += 1.5; // Move back so Moon is visible and centered
+  targetCameraPos.z += 0.8; // Zoomed in closer than Earth view
   
   animateCameraToPosition(targetCameraPos, moonPos, 1500);
   updateBodyBreadcrumb('moon');

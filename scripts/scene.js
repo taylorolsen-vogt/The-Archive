@@ -83,7 +83,7 @@ function onMouseMove(e) {
   const deltaX = e.clientX - previousMouse.x;
   const deltaY = e.clientY - previousMouse.y;
   
-  // These will be imported and used by earth module
+  // Rotate whichever body is being viewed
   if (window.earth) {
     window.earth.rotation.y += deltaX * 0.005;
     window.earth.rotation.x += deltaY * 0.005;
@@ -91,6 +91,10 @@ function onMouseMove(e) {
   if (window.nightLights) {
     window.nightLights.rotation.y += deltaX * 0.005;
     window.nightLights.rotation.x += deltaY * 0.005;
+  }
+  if (window.moon) {
+    window.moon.rotation.y += deltaX * 0.005;
+    window.moon.rotation.x += deltaY * 0.005;
   }
   
   previousMouse = { x: e.clientX, y: e.clientY };
