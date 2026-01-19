@@ -1,0 +1,5 @@
+name = "the-archive"
+compatibility_date = "2026-01-19"
+
+[site]
+bucket = "."
