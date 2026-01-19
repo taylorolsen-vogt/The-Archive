@@ -29,15 +29,7 @@ export function togglePlayback() {
     playbackIndicator.classList.add('visible');
     
     buildPlaybackQueue();
-    
-    // Jump to present day first (2026) - find the closest item to present
-    const presentYear = 2026;
-    playbackIndex = playbackQueue.findIndex(item => item.yearStart >= presentYear);
-    if (playbackIndex === -1) {
-      // If no future items, start from the end (most recent)
-      playbackIndex = playbackQueue.length - 1;
-    }
-    
+    playbackIndex = 0;
     playNextItem();
   } else {
     // Stop playback
@@ -66,22 +58,23 @@ export function pausePlayback() {
 }
 
 /**
- * Build queue of all timeline items in chronological order
+ * Build queue of only top-level timeline items (the 4 eras + present)
  */
 function buildPlaybackQueue() {
   const timelineData = getTimelineData();
   const queue = [];
   
-  function addItemsRecursively(items) {
-    for (const item of items) {
-      queue.push(item);
-      if (item.children && item.children.length > 0) {
-        addItemsRecursively(item.children);
-      }
-    }
+  // Add only top-level items (the 4 major eras)
+  if (timelineData.items && timelineData.items.length > 0) {
+    queue.push(...timelineData.items);
   }
   
-  addItemsRecursively(timelineData.items);
+  // Add present day marker
+  queue.push({
+    name: 'Present Day',
+    yearStart: 2026,
+    value: 100
+  });
   
   // Sort by year (oldest first)
   queue.sort((a, b) => a.yearStart - b.yearStart);
@@ -109,8 +102,8 @@ function playNextItem() {
   
   playbackIndex++;
   
-  // Calculate pause duration (shorter for recent history, longer for deep time)
-  const pauseDuration = item.yearStart < -1000000 ? 2000 : 1500;
+  // Longer pause for each era (3 seconds per era for better viewing)
+  const pauseDuration = 3000;
   
   // Schedule next item
   playbackInterval = setTimeout(() => {
