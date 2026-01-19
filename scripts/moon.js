@@ -55,7 +55,7 @@ export function updateMoonOrbit() {
     moon.position.y = 0; // Keep at equator level
     
     // Rotate Moon on its axis
-    moon.rotation.y += 0.0002;
+    moon.rotation.y += 0.001;
   }
 }
 
