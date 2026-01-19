@@ -41,6 +41,9 @@ const eraTextures = {
   'pleistocene': './textures/ice_planet.jpg',
   'holocene': './textures/earth_day.jpg',
   
+  // Present day
+  'presentday': './textures/earth_day.jpg',
+  
   // Default
   'default': './textures/earth_day.jpg'
 };
@@ -143,13 +146,17 @@ export function createEarth() {
 export function changeEarthTexture(itemId) {
   const newTexturePath = eraTextures[itemId] || eraTextures['default'];
   
+  console.log(`🎨 changeEarthTexture called with itemId: "${itemId}", path: ${newTexturePath}`);
+  
   if (newTexturePath === currentTexture) {
+    console.log('⏭️ Already using this texture, skipping');
     return; // Already using this texture
   }
   
   // Load new texture with fade transition
   const textureLoader = new THREE.TextureLoader();
   textureLoader.load(newTexturePath, (newTexture) => {
+    console.log(`✅ Texture loaded: ${newTexturePath}`);
     const oldOpacity = earth.material.opacity !== undefined ? earth.material.opacity : 1;
     earth.material.transparent = true;
     

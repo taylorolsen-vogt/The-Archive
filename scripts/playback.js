@@ -72,6 +72,7 @@ function buildPlaybackQueue() {
   
   // Add present day marker
   queue.push({
+    id: 'presentday',
     name: 'Present Day',
     yearStart: 2026,
     value: 100
@@ -81,6 +82,8 @@ function buildPlaybackQueue() {
   queue.sort((a, b) => a.yearStart - b.yearStart);
   
   playbackQueue = queue;
+  
+  console.log('📺 Playback queue built:', playbackQueue.map(item => ({ id: item.id, name: item.name })));
 }
 
 /**
@@ -94,11 +97,14 @@ function playNextItem() {
   
   const item = playbackQueue[playbackIndex];
   
+  console.log(`▶️ Playing item ${playbackIndex + 1}/${playbackQueue.length}:`, { id: item.id, name: item.name });
+  
   // Update playback indicator position on timeline
   const playbackIndicator = document.getElementById('playbackIndicator');
   playbackIndicator.style.left = `${item.value}%`;
   
   // Change Earth texture based on the era
+  console.log(`🌍 Changing texture to: ${item.id}`);
   changeEarthTexture(item.id);
   
   // Open panel for this item
