@@ -120,7 +120,7 @@ export function createEarth() {
 
   //const isMobile = matchMedia("(pointer: coarse)").matches;
 
-  const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 64, 64);
+  const atmosphereGeometry = new THREE.SphereGeometry(earthScale, 64, 64);
 
   const atmosphereMaterial = new THREE.ShaderMaterial({
     uniforms: {},
