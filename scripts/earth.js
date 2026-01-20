@@ -55,7 +55,7 @@ export function createEarth() {
   const textureLoader = new THREE.TextureLoader();
   
   // Scale Earth smaller on mobile devices
-  //const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobile = matchMedia("(pointer: coarse)").matches;
   const earthScale = isMobile ? 0.55 : 0.85;
   
   // Earth with day texture
@@ -117,7 +117,7 @@ export function createEarth() {
   const ATMOSPHERE_FACTOR_DESKTOP = 1.025;
   const ATMOSPHERE_FACTOR_MOBILE = 1.015;
 
-  const isMobile = matchMedia("(pointer: coarse)").matches;
+  //const isMobile = matchMedia("(pointer: coarse)").matches;
 
   const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 64, 64);
 
