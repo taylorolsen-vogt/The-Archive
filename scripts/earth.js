@@ -157,6 +157,9 @@ export function createEarth() {
   atmosphere.visible = false; // Start hidden, shows after Great Oxidation
   scene.add(atmosphere);
 
+  updateTimelineVisibility(currentTimelineYear);
+ 
+
   return { earth, atmosphere, nightLights };
 }
 
@@ -216,7 +219,9 @@ export function changeEarthTexture(itemId) {
  * @param {number} year - Current timeline year
  */
 export function updateTimelineVisibility(year) {
+  if (typeof year !== 'number') return;
   currentTimelineYear = year;
+  
   
   // Update Moon visibility (appears after formation ~4.5 billion years ago)
   if (window.moon) {
