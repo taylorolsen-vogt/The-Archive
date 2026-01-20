@@ -13,11 +13,22 @@ let earth, atmosphere, nightLights;
 let currentTexture = './textures/earth_day.jpg';
 let currentTimelineYear = 2026;
 
+
 // Layer states
 export const layerStates = {
   satellites: false,
   cityLights: true
 };
+
+export function changeEarthTexture(itemId) {
+  const path = eraTextures[itemId] || eraTextures.default;
+  if (!earth) return;
+
+  new THREE.TextureLoader().load(path, texture => {
+    earth.material.map = texture;
+    earth.material.needsUpdate = true;
+  });
+}
 
 // Era texture mapping
 const eraTextures = {
