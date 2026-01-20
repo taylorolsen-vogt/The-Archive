@@ -112,8 +112,9 @@ export function createEarth() {
   // Make globally accessible for rotation
   window.nightLights = nightLights;
 
+
   // Atmosphere glow shader
-  const EARTH_RADIUS = 1.0;
+  //const EARTH_RADIUS = 1.0;
   const ATMOSPHERE_FACTOR_DESKTOP = 1.025;
   const ATMOSPHERE_FACTOR_MOBILE = 1.015;
 
