@@ -55,7 +55,7 @@ export function createEarth() {
   const textureLoader = new THREE.TextureLoader();
   
   // Scale Earth smaller on mobile devices
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  //const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const earthScale = isMobile ? 0.55 : 0.85;
   
   // Earth with day texture
@@ -157,7 +157,7 @@ export function createEarth() {
   scene.add(atmosphere);
 
   return { earth, atmosphere, nightLights };
-
+}
 
 /**
  * Change Earth texture based on geological era
