@@ -113,35 +113,51 @@ export function createEarth() {
   window.nightLights = nightLights;
 
   // Atmosphere glow shader
-  const atmosphereGeometry = new THREE.SphereGeometry(1.0, 64, 64);
+  const EARTH_RADIUS = 1.0;
+  const ATMOSPHERE_FACTOR_DESKTOP = 1.025;
+  const ATMOSPHERE_FACTOR_MOBILE = 1.015;
+
+  const isMobile = matchMedia("(pointer: coarse)").matches;
+
+  const atmosphereGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 64, 64);
+
   const atmosphereMaterial = new THREE.ShaderMaterial({
     uniforms: {},
     vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
+    varying vec3 vNormal;
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
     fragmentShader: `
-      varying vec3 vNormal;
-      void main() {
-        float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
-        vec3 atmosphere = vec3(0.4, 0.7, 0.95) * intensity;
-        gl_FragColor = vec4(atmosphere, 1.0) * intensity * 0.8;
-      }
-    `,
+    varying vec3 vNormal;
+    void main() {
+      float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+      vec3 atmosphere = vec3(0.4, 0.7, 0.95) * intensity;
+      gl_FragColor = vec4(atmosphere, 1.0) * intensity * 0.8;
+    }
+  `,
     side: THREE.BackSide,
     blending: THREE.AdditiveBlending,
     transparent: true,
     opacity: 0
   });
+
   atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+
+  const atmosphereScale =
+    isMobile
+      ? ATMOSPHERE_FACTOR_MOBILE
+      : ATMOSPHERE_FACTOR_DESKTOP;
+
+  atmosphere.scale.setScalar(atmosphereScale);
+
   atmosphere.visible = false; // Start hidden, shows after Great Oxidation
   scene.add(atmosphere);
-  
+
   return { earth, atmosphere, nightLights };
-}
+
 
 /**
  * Change Earth texture based on geological era
