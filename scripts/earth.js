@@ -114,27 +114,32 @@ export function createEarth() {
   // ---------------------------
   // Atmosphere (FIXED)
   // ---------------------------
-  const ATMOSPHERE_SCALE_DESKTOP = earthScale * 1.03;
-  const ATMOSPHERE_SCALE_MOBILE = earthScale * 1.015;
+  // ---------------------------
+  // Atmosphere (SAFE + STABLE)
+  // ---------------------------
 
-  const atmosphereGeometry = new THREE.SphereGeometry(1.0, 64, 64);
+  // Slightly larger than Earth — mobile tighter, desktop wider
+  const ATMOSPHERE_FACTOR = isMobile ? 1.015 : 1.03;
+
+  // Geometry matches Earth, scale pushes it outward
+  const atmosphereGeometry = new THREE.SphereGeometry(earthScale, 64, 64);
 
   const atmosphereMaterial = new THREE.ShaderMaterial({
     vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
+    varying vec3 vNormal;
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
     fragmentShader: `
-      varying vec3 vNormal;
-      void main() {
-        float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-        vec3 glow = vec3(0.4, 0.7, 0.95) * intensity;
-        gl_FragColor = vec4(glow, intensity);
-      }
-    `,
+    varying vec3 vNormal;
+    void main() {
+      float intensity = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+      vec3 color = vec3(0.35, 0.6, 0.9) * intensity;
+      gl_FragColor = vec4(color, intensity);
+    }
+  `,
     side: THREE.BackSide,
     transparent: true,
     blending: THREE.AdditiveBlending,
@@ -142,10 +147,10 @@ export function createEarth() {
   });
 
   atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-  atmosphere.scale.setScalar(
-    isMobile ? ATMOSPHERE_SCALE_MOBILE : ATMOSPHERE_SCALE_DESKTOP
-  );
+  atmosphere.scale.setScalar(ATMOSPHERE_FACTOR);
   atmosphere.visible = false;
+
+  scene.add(atmosphere);
 
   scene.add(atmosphere);
 
