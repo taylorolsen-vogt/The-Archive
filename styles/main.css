@@ -162,3 +162,158 @@ html,
 body {
   overscroll-behavior: none;
 }
+
+/**
+ * THE ARCHIVE - DYNAMIC LAYOUT
+ * Earth repositions when panels open
+ */
+
+/* ============================
+   CANVAS - DEFAULT CENTERED
+============================ */
+
+#earthCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  transform: translate(0, 0);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================
+   MOBILE: Shift up when panel visible
+============================ */
+
+@media (max-width: 1023px) {
+
+  /* When info panel is visible, shift Earth up */
+  body.panel-open #earthCanvas {
+    transform: translateY(-15vh);
+  }
+}
+
+@media (max-width: 768px) {
+  body.panel-open #earthCanvas {
+    transform: translateY(-12vh);
+  }
+}
+
+@media (max-width: 480px) {
+  body.panel-open #earthCanvas {
+    transform: translateY(-10vh);
+  }
+}
+
+/* ============================
+   DESKTOP: Shift right when panel visible
+============================ */
+
+@media (min-width: 1024px) {
+
+  /* When info panel is visible, shift Earth right */
+  body.panel-open #earthCanvas {
+    transform: translateX(15vw);
+  }
+}
+
+/* ============================
+   INFO PANEL - BOTTOM (MOBILE)
+============================ */
+
+#infoPanel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  background: linear-gradient(to top,
+      rgba(10, 15, 25, 0.98) 0%,
+      rgba(10, 15, 25, 0.95) 80%,
+      rgba(10, 15, 25, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border-top: 1px solid rgba(136, 204, 255, 0.2);
+  border-radius: 24px 24px 0 0;
+
+  max-height: 25vh;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  /* Hidden by default */
+  transform: translateY(100%);
+}
+
+#infoPanel.visible {
+  transform: translateY(0);
+}
+
+#infoPanel.expanded {
+  max-height: 70vh;
+}
+
+/* ============================
+   DESKTOP: Panel on LEFT side
+============================ */
+
+@media (min-width: 1024px) {
+  #infoPanel {
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 400px;
+    max-height: 80vh;
+    border-radius: 0 24px 24px 0;
+    border-top: none;
+    border-right: 1px solid rgba(136, 204, 255, 0.2);
+
+    /* Slide in from left */
+    transform: translateX(-100%);
+  }
+
+  #infoPanel.visible {
+    transform: translateX(0);
+  }
+}
+
+/* ============================
+   TIMELINE - REPOSITIONED
+============================ */
+
+#timeline {
+  position: fixed;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 16px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Move timeline up when panel is visible on mobile */
+@media (max-width: 1023px) {
+  body.panel-open #timeline {
+    transform: translateY(-25vh);
+  }
+
+  body.panel-open #timeline.panel-expanded {
+    transform: translateY(-70vh);
+  }
+}
+
+/* Timeline stays at bottom on desktop */
+@media (min-width: 1024px) {
+  #timeline {
+    left: 420px;
+    /* Leave room for left panel */
+  }
+
+  body.panel-open #timeline {
+    /* Timeline doesn't move on desktop */
+    transform: none;
+  }
+}
