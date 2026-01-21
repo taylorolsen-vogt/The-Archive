@@ -13,6 +13,6 @@ export function getIsTransitioning() {
   return isTransitioning;
 }
 
-export function setCurrentBody(body) {
+export function currentBody(body) {
   currentBody = body;
 }
