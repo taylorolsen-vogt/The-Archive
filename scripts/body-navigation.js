@@ -3,7 +3,7 @@
  * Handle camera transitions when bodies are clicked
  */
 
-import { setIsTransitioning, getIsTransitioning, currentBody } from './transition-state.js';
+import { setIsTransitioning, getIsTransitioning, setCurrentBody, getCurrentBody } from './transition-state.js';
 import { scene, camera, renderer, setCameraTarget } from './scene.js';
 import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
 //import { setCameraTarget } from './scene.js';
@@ -14,12 +14,12 @@ import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
  * Called from scene.js when Moon is clicked
  */
 export function transitionToMoon() {
-  if (currentBody == 'moon' || getIsTransitioning()) return;
+  if (getCurrentBody() == 'moon' || getIsTransitioning()) return;
 
   console.log('📡 Transitioning to Moon view...');
   setIsTransitioning(true);
-  currentBody('moon');
-  let moon = getMoon();
+  setCurrentBody('moon');
+  const moon = getMoon();
   if (!moon) return;
 
   // Stop the Moon from orbiting while we're focused on it
@@ -50,7 +50,7 @@ export function transitionToMoon() {
  * Transition camera back to Earth-centric view
  */
 export function transitionToEarth() {
-  if (currentBody == 'earth' || getIsTransitioning  ()) return;
+  if (setCurrentBody == 'earth' || getIsTransitioning  ()) return;
 
   console.log('📡 Transitioning to Earth view...');
   setIsTransitioning(true);
