@@ -6,7 +6,7 @@
 import { setIsTransitioning, getIsTransitioning, setCurrentBody } from './transition-state.js';
 import { scene, camera, renderer, setCameraTarget } from './scene.js';
 import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
-import { setCameraTarget } from './scene.js';
+//import { setCameraTarget } from './scene.js';
  
 
 /**
