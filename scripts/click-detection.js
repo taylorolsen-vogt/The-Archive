@@ -6,6 +6,8 @@
 import { getMoon } from './moon.js';
 import { getEarth } from './earth.js';
 import { getIsTransitioning } from './transition-state.js';
+import { getIsDragging } from './scene.js';
+
 
 // Will be set by scene.js
 export let camera = null;
@@ -25,6 +27,13 @@ export function initClickDetection(cameraRef) {
  * Detect clicks on celestial bodies using raycaster
  */
 export function detectBodyClick(event, rect) {
+  
+  if (getIsDragging()) {
+    console.log('⏸️ Click ignored - currently dragging');
+    return;
+  }
+  
+  
   // Don't allow clicks during transitions
   if (getIsTransitioning()) {
     console.log('⏸️ Click ignored - transition in progress');
@@ -44,21 +53,14 @@ export function detectBodyClick(event, rect) {
   
   const moon = getMoon();
   const earth = getEarth();
-  const currentBody = getCurrentBody();
+  
   
   // Always include Moon and Earth if they exist (Moon is always clickable)
-  if (currentBody === 'earth' && moon) {
-    clickableObjects.push(moon);
-    console.log('📦 In Earth view - Moon is clickable');
-  } else if (currentBody === 'moon' && earth) {
-    clickableObjects.push(earth);
-    console.log('📦 In Moon view - Earth is clickable');
-  } else {
-    // Default: include both (shouldn't happen but safe fallback)
-    if (moon) clickableObjects.push(moon);
-    if (earth) clickableObjects.push(earth);
-    console.log('📦 Default mode - both clickable');
-  }
+  if (moon) clickableObjects.push(moon);
+  if (earth) clickableObjects.push(earth);
+
+  console.log('📦 Clickable objects:', { moonVisible: moon?.visible, earthExists: !!earth, count: clickableObjects.length });
+
 
   console.log('🎯 Clickable count:', clickableObjects.length);
 
