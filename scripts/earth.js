@@ -119,7 +119,7 @@ export function createEarth() {
   // ---------------------------
 
   // Slightly larger than Earth — mobile tighter, desktop wider
-  const ATMOSPHERE_FACTOR = isMobile ? 1.05 : 1.08;
+  const ATMOSPHERE_FACTOR = isMobile ? 1.08 : 1.08;
 
   // Geometry matches Earth, scale pushes it outward
   const atmosphereGeometry = new THREE.SphereGeometry(earthScale, 64, 64);
