@@ -19,7 +19,7 @@ export function transitionToMoon() {
   console.log('📡 Transitioning to Moon view...');
   setIsTransitioning(true);
   currentBody('moon');
-  const moon = getMoon();
+  let moon = getMoon();
   if (!moon) return;
 
   // Stop the Moon from orbiting while we're focused on it
