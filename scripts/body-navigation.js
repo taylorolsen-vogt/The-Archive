@@ -14,11 +14,11 @@ import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
  * Called from scene.js when Moon is clicked
  */
 export function transitionToMoon() {
-  if (setCurrentBody == 'moon' || getIsTransitioning()) return;
+  if (currentBody == 'moon' || getIsTransitioning()) return;
 
   console.log('📡 Transitioning to Moon view...');
   setIsTransitioning(true);
-  setCurrentBody('moon');
+  currentBody('moon');
   const moon = getMoon();
   if (!moon) return;
 
@@ -50,11 +50,11 @@ export function transitionToMoon() {
  * Transition camera back to Earth-centric view
  */
 export function transitionToEarth() {
-  if (setCurrentBody == 'earth' || getIsTransitioning  ()) return;
+  if (currentBody == 'earth' || getIsTransitioning  ()) return;
 
   console.log('📡 Transitioning to Earth view...');
   setIsTransitioning(true);
-  setCurrentBody = 'earth';
+  currentBody = 'earth';
 
   // Resume Moon orbiting and reset size
   setMoonOrbitActive(true);
