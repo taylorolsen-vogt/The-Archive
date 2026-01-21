@@ -39,7 +39,7 @@ export function transitionToMoon() {
 
   animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
     setIsTransitioning(false);
-    setCurrentBody('moon'); // Update state so click detection knows we're on moon
+    //setCurrentBody('moon'); // Update state so click detection knows we're on moon
   });
 
   updateBodyBreadcrumb('moon');
@@ -68,7 +68,7 @@ export function transitionToEarth() {
 
   animateCameraToPosition(targetCameraPos, targetLookAt, 1500, () => {
     setIsTransitioning(false);
-    setCurrentBody('earth'); // Update state
+    //setCurrentBody('earth'); // Update state
   });
 
   updateBodyBreadcrumb('earth');
