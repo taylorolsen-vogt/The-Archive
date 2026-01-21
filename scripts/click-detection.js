@@ -44,13 +44,24 @@ export function detectBodyClick(event, rect) {
   
   const moon = getMoon();
   const earth = getEarth();
+  const currentBody = getCurrentBody();
   
   // Always include Moon and Earth if they exist (Moon is always clickable)
-  if (moon) clickableObjects.push(moon);
-  if (earth) clickableObjects.push(earth);
-  
-  console.log('📦 Clickable objects:', { moonVisible: moon?.visible, earthExists: !!earth, count: clickableObjects.length });
-  
+  if (currentBody === 'earth' && moon) {
+    clickableObjects.push(moon);
+    console.log('📦 In Earth view - Moon is clickable');
+  } else if (currentBody === 'moon' && earth) {
+    clickableObjects.push(earth);
+    console.log('📦 In Moon view - Earth is clickable');
+  } else {
+    // Default: include both (shouldn't happen but safe fallback)
+    if (moon) clickableObjects.push(moon);
+    if (earth) clickableObjects.push(earth);
+    console.log('📦 Default mode - both clickable');
+  }
+
+  console.log('🎯 Clickable count:', clickableObjects.length);
+
   // Check for intersections
   const intersects = raycaster.intersectObjects(clickableObjects);
   
