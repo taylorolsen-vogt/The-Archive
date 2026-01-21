@@ -6,19 +6,18 @@
 import { setIsTransitioning, getIsTransitioning, setCurrentBody, getCurrentBody } from './transition-state.js';
 import { scene, camera, renderer, setCameraTarget } from './scene.js';
 import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
-//import { setCameraTarget } from './scene.js';
- 
 
 /**
  * Transition camera to Moon-centric view
  * Called from scene.js when Moon is clicked
  */
 export function transitionToMoon() {
-  if (getCurrentBody() == 'moon' || getIsTransitioning()) return;
+  if (getCurrentBody() === 'moon' || getIsTransitioning()) return;
 
   console.log('📡 Transitioning to Moon view...');
   setIsTransitioning(true);
   setCurrentBody('moon');
+
   const moon = getMoon();
   if (!moon) return;
 
@@ -39,7 +38,6 @@ export function transitionToMoon() {
 
   animateCameraToPosition(targetCameraPos, moonPos, 1500, () => {
     setIsTransitioning(false);
-    //setCurrentBody('moon'); // Update state so click detection knows we're on moon
   });
 
   updateBodyBreadcrumb('moon');
@@ -50,11 +48,11 @@ export function transitionToMoon() {
  * Transition camera back to Earth-centric view
  */
 export function transitionToEarth() {
-  if (setCurrentBody == 'earth' || getIsTransitioning  ()) return;
+  if (getCurrentBody() === 'earth' || getIsTransitioning()) return;
 
   console.log('📡 Transitioning to Earth view...');
   setIsTransitioning(true);
-  currentBody = 'earth';
+  setCurrentBody('earth');
 
   // Resume Moon orbiting and reset size
   setMoonOrbitActive(true);
@@ -68,7 +66,6 @@ export function transitionToEarth() {
 
   animateCameraToPosition(targetCameraPos, targetLookAt, 1500, () => {
     setIsTransitioning(false);
-    //setCurrentBody('earth'); // Update state
   });
 
   updateBodyBreadcrumb('earth');
@@ -160,13 +157,6 @@ function openEarthPanel() {
   if (panel && panel.classList.contains('visible')) {
     panel.classList.remove('visible');
   }
-}
-
-/**
- * Get current focused body
- */
-export function getCurrentBody() {
-  return currentBody;
 }
 
 // Make globally accessible for breadcrumb onclick
