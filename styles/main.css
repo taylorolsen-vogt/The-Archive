@@ -179,3 +179,28 @@ html,
 body {
   overscroll-behavior: none;
 }
+
+/* Shift canvas up so Earth is in upper 1/3 */
+#earthCanvas {
+  transform: translateY(-15vh);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  #earthCanvas {
+    transform: translateY(-12vh);
+  }
+}
+
+@media (max-width: 480px) {
+  #earthCanvas {
+    transform: translateY(-10vh);
+  }
+}
+
+/* Desktop - less dramatic shift */
+@media (min-width: 1024px) {
+  #earthCanvas {
+    transform: translateY(-18vh);
+  }
+}
