@@ -18,8 +18,7 @@ export function transitionToMoon() {
 
   console.log('📡 Transitioning to Moon view...');
   setIsTransitioning(true);
-  setCurrentBody = 'moon';
-
+  setCurrentBody('moon');
   const moon = getMoon();
   if (!moon) return;
 
