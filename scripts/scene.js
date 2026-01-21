@@ -1,10 +1,9 @@
 /**
- * THE ARCHIVE - SCENE MODULE
+ * THE ARCHIVE - SCENE MODULE (UPDATED)
  * Three.js scene, camera, renderer setup and interaction loop
  */
 
 import { initClickDetection, detectBodyClick } from './click-detection.js';
-import { getCurrentBody } from './body-navigation.js';
 
 // Scene globals
 export let scene, camera, renderer;
@@ -27,6 +26,14 @@ const CAMERA_LIMITS = {
   minPhi: 0.2,
   maxPhi: Math.PI - 0.2
 };
+
+/**
+ * NEW: Update camera orbit target (for moon rotation)
+ */
+export function setCameraTarget(newTarget) {
+  cameraTarget.copy(newTarget);
+  updateCameraFromSpherical();
+}
 
 function updateCameraFromSpherical() {
   camera.position.x =
