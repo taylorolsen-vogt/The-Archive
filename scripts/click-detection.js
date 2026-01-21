@@ -51,8 +51,8 @@ export function detectBodyClick(event, rect) {
   // Get clickable objects
   const clickableObjects = [];
   
-  const moon = getMoon();
-  const earth = getEarth();
+  let moon = getMoon();
+  let earth = getEarth();
   
   
   // Always include Moon and Earth if they exist (Moon is always clickable)
