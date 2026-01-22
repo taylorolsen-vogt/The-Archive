@@ -20,25 +20,21 @@
   --panel-accent-light: rgba(77, 153, 204, 0.3);
   --panel-accent-bg: rgba(77, 153, 204, 0.15);
 
-  /* PANEL BACKGROUND EXTENDS FULL HEIGHT (FIX) */
-  background:
-    linear-gradient(to bottom,
-      var(--panel-accent-bg),
-      rgba(0, 0, 0, 0.85));
-
   /* Hide scrollbar but keep functionality */
   scrollbar-width: none;
+  /* Firefox */
   -ms-overflow-style: none;
+  /* IE/Edge */
 }
 
-/* Moon theme */
+/* Moon theme (light grey/off-white) */
 #infoPanel[data-body="moon"] {
   --panel-accent: rgba(200, 200, 200, 1);
   --panel-accent-light: rgba(200, 200, 200, 0.3);
   --panel-accent-bg: rgba(200, 200, 200, 0.15);
 }
 
-/* Mars theme */
+/* Mars theme (orange/red) - for future */
 #infoPanel[data-body="mars"] {
   --panel-accent: rgba(204, 102, 51, 1);
   --panel-accent-light: rgba(204, 102, 51, 0.3);
@@ -47,6 +43,7 @@
 
 #infoPanel::-webkit-scrollbar {
   display: none;
+  /* Chrome/Safari/Opera */
 }
 
 #infoPanel canvas {
@@ -61,15 +58,14 @@
 #infoPanelContent {
   position: relative;
   z-index: 1;
-  min-height: 100%;
-  /* FIX: ensure full scroll background */
+  height: 100%;
 }
 
 #infoPanel.visible {
   left: 0;
 }
 
-/* Move timeline away from panel when open (desktop only) */
+/* Move timeline away from panel when it's open */
 #timeline.panel-open {
   padding-left: 100px;
   transition: padding-left 0.5s ease;
@@ -121,6 +117,11 @@
   color: rgba(150, 150, 150, 0.5);
 }
 
+.breadcrumb-item.future:hover {
+  text-decoration: none;
+  color: rgba(150, 150, 150, 0.5);
+}
+
 .breadcrumb-separator {
   margin: 0 10px;
   opacity: 0.6;
@@ -146,12 +147,11 @@
 .panel-content {
   padding: 30px;
   background: rgba(0, 0, 0, 0.5);
-  min-height: 100%;
-  /* FIX */
+  min-height: calc(100vh - 48px - 120px - 150px);
   padding-bottom: 60px;
 }
 
-/* Scroll indicator */
+/* Scroll indicator - subtle glow at bottom when scrollable */
 #infoPanel::after {
   content: '';
   position: fixed;
@@ -159,9 +159,7 @@
   left: 0;
   width: 380px;
   height: 60px;
-  background: linear-gradient(to top,
-      var(--panel-accent-light),
-      transparent);
+  background: linear-gradient(to top, rgba(77, 153, 204, 0.3), transparent);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
@@ -208,43 +206,76 @@
   cursor: pointer;
   transition: all 0.3s;
   font-size: 28px;
+  line-height: 0;
   color: white;
+  padding: 0;
+  user-select: none;
+}
+
+.panel-close:hover {
+  background: rgba(74, 157, 157, 0.3);
+  transform: rotate(90deg);
 }
 
 /* ===== EVENT ITEMS ===== */
-.event-item,
-.subdivision-item {
+.event-item {
+  padding: 12px;
+  margin-bottom: 10px;
   background: var(--panel-accent-bg);
   border-radius: 8px;
+  cursor: pointer;
   transition: all 0.3s;
+  border-left: 3px solid transparent;
 }
 
-/* ================================================
-   MOBILE OVERRIDE – SAME PANEL, BOTTOM SHEET
-   ================================================ */
-@media (max-width: 768px) {
-
-  #infoPanel {
-    left: 0;
-    right: 0;
-    top: auto;
-    bottom: -80vh;
-    width: 100%;
-    height: 80vh;
-    transition: bottom 0.5s ease;
-    border-radius: 20px 20px 0 0;
-  }
-
-  #infoPanel.visible {
-    bottom: 0;
-  }
-
-  #timeline.panel-open {
-    padding-left: 0;
-  }
-
-  #infoPanel::after {
-    bottom: 0;
-    width: 100%;
-  }
+.event-item:hover {
+  background: var(--panel-accent-light);
+  border-left-color: rgba(255, 255, 255, 0.8);
+  transform: translateX(5px);
 }
+
+.event-name {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.event-location {
+  font-size: 0.85em;
+  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== SUBDIVISION ITEMS ===== */
+.subdivision-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  background: var(--panel-accent-bg);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-left: 3px solid var(--panel-accent-light);
+}
+
+.subdivision-item:hover {
+  background: rgba(var(--panel-accent-light), 0.25);
+  border-left-color: var(--panel-accent);
+  transform: translateX(5px);
+}
+
+.subdivision-name {
+  font-weight: 500;
+  font-size: 1.05em;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.subdivision-years {
+  font-size: 0.9em;
+  opacity: 0.75;
+  color: rgba(255, 255, 255, 0.75);
+}
+
