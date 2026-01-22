@@ -47,7 +47,7 @@
 }
 
 #infoPanel canvas {
-  position: fixed;
+  position: sticky;
   top: 48px;
   left: 0;
   width: 380px;
