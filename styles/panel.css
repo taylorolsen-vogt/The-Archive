@@ -17,7 +17,7 @@
 
   /* Default theme colors (Earth - blue) */
   --panel-accent: rgba(77, 153, 204, 1);
-  --panel-accent-light: rgba(77, 153, 204, 0.3);
+  --panel-accent-light: rgba(77, 153, 204, 0.15);
   --panel-accent-bg: rgba(77, 153, 204, 0.15);
 
   /* Hide scrollbar but keep functionality */
