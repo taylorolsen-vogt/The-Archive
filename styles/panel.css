@@ -1,6 +1,6 @@
 /* ================================================
    THE ARCHIVE - INFO PANEL STYLES
-   Glassmorphic side panel with breadcrumb navigation
+   Shader-backed side panel with breadcrumb navigation
    ================================================ */
 
 /* ===== INFO PANEL ===== */
@@ -14,13 +14,6 @@
   transition: left 0.5s ease;
   overflow-y: auto;
   pointer-events: all;
-
-  /* Glassmorphism base layer */
-  background: rgba(10, 15, 30, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0 12px 12px 0;
 
   /* Default theme colors (Earth - blue) */
   --panel-accent: rgba(77, 153, 204, 1);
@@ -53,6 +46,7 @@
   /* Chrome/Safari/Opera */
 }
 
+/* Shader canvas — fills the panel behind everything */
 #infoPanel canvas {
   position: absolute;
   top: 0;
@@ -62,6 +56,7 @@
   z-index: -1;
 }
 
+/* Content layer sits above the shader */
 #infoPanelContent {
   position: relative;
   z-index: 1;
@@ -82,8 +77,8 @@
 .panel-header {
   padding: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  /* Subtle tint only — glass layer underneath does the heavy lifting */
-  background: rgba(0, 0, 0, 0.15);
+  /* Matched to .panel-content — no more banding */
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .panel-breadcrumb {
@@ -154,9 +149,8 @@
 /* ===== PANEL CONTENT ===== */
 .panel-content {
   padding: 30px;
-  /* Transparent — glass is already on the parent */
-  background: transparent;
-  min-height: 0;
+  /* Matched to .panel-header — unified overlay over the shader */
+  background: rgba(0, 0, 0, 0.0);
   padding-bottom: 40px;
 }
 
