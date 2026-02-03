@@ -8,12 +8,19 @@
   position: fixed;
   left: -400px;
   top: 48px;
-  bottom: 120px;
+  bottom: 80px;
   width: 380px;
   z-index: 2;
   transition: left 0.5s ease;
   overflow-y: auto;
   pointer-events: all;
+
+  /* Glassmorphism base layer */
+  background: rgba(10, 15, 30, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 12px 12px 0;
 
   /* Default theme colors (Earth - blue) */
   --panel-accent: rgba(77, 153, 204, 1);
@@ -75,7 +82,8 @@
 .panel-header {
   padding: 30px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.4);
+  /* Subtle tint only — glass layer underneath does the heavy lifting */
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .panel-breadcrumb {
@@ -146,20 +154,21 @@
 /* ===== PANEL CONTENT ===== */
 .panel-content {
   padding: 30px;
-  background: rgba(0, 0, 0, 0.25);
-  min-height: calc(100vh - 48px - 120px - 150px);
-  padding-bottom: 60px;
+  /* Transparent — glass is already on the parent */
+  background: transparent;
+  min-height: 0;
+  padding-bottom: 40px;
 }
 
 /* Scroll indicator - subtle glow at bottom when scrollable */
 #infoPanel::after {
   content: '';
   position: fixed;
-  bottom: 120px;
+  bottom: 80px;
   left: 0;
   width: 380px;
   height: 60px;
-  background: linear-gradient(to top, rgba(77, 153, 204, 0.3), transparent);
+  background: linear-gradient(to top, var(--panel-accent-light), transparent);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
@@ -261,7 +270,7 @@
 }
 
 .subdivision-item:hover {
-  background: rgba(var(--panel-accent-light), 0.25);
+  background: var(--panel-accent-light);
   border-left-color: var(--panel-accent);
   transform: translateX(5px);
 }
