@@ -16,7 +16,7 @@
   pointer-events: all;
 
   /* Default theme colors (Earth - blue) */
-  --panel-accent: rgba(77, 153, 204, 1);
+  --panel-accent: rgba(77, 153, 204, .15);
   --panel-accent-light: rgba(77, 153, 204, 0.15);
   --panel-accent-bg: rgba(77, 153, 204, 0.15);
 
@@ -76,7 +76,7 @@
 /* ===== PANEL HEADER ===== */
 .panel-header {
   padding: 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(77, 153, 204, 0.15);
   /* Matched to .panel-content — no more banding */
   background: rgba(0, 0, 0, 0.2);
 }
