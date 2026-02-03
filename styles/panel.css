@@ -150,7 +150,7 @@
 .panel-content {
   padding: 30px;
   /* Matched to .panel-header — unified overlay over the shader */
-  background: rgba(0, 0, 0, 0.0);
+  background: rgba(0, 0, 0, 0.2);
   padding-bottom: 40px;
 }
 
