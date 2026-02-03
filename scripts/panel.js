@@ -22,8 +22,8 @@ export function initPanelAtmosphere() {
   
   panelScene = new THREE.Scene();
   
-  const height = window.innerHeight - 48 - 80;
-  //panelRenderer.setSize(380, height);
+  const height = panel.clientHeight;
+
   
   panelCamera = new THREE.PerspectiveCamera(
     45,
@@ -38,7 +38,7 @@ export function initPanelAtmosphere() {
     alpha: true,
     antialias: true
   });
-  panelRenderer.setSize(380, height);
+  panelRenderer.setSize(380, height, false);
   panelRenderer.setPixelRatio(window.devicePixelRatio);
   panelRenderer.setClearColor(0x000000, 0);
   
