@@ -22,9 +22,9 @@
 
   /* Hide scrollbar but keep functionality */
   scrollbar-width: none;
-  /* Firefox */
   -ms-overflow-style: none;
-  /* IE/Edge */
+  -webkit-overflow-scrolling: touch;
+  /* ← ADDED: Smooth iOS scrolling */
 }
 
 /* Moon theme (light grey/off-white) */
@@ -43,7 +43,6 @@
 
 #infoPanel::-webkit-scrollbar {
   display: none;
-  /* Chrome/Safari/Opera */
 }
 
 /* Shader canvas — fills the panel behind everything */
@@ -77,7 +76,6 @@
 .panel-header {
   padding: 30px;
   border-bottom: 1px solid rgba(77, 153, 204, 0.15);
-  /* Matched to .panel-content — no more banding */
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -149,18 +147,20 @@
 /* ===== PANEL CONTENT ===== */
 .panel-content {
   padding: 30px;
-  /* Matched to .panel-header — unified overlay over the shader */
   background: rgba(0, 0, 0, 0.2);
   padding-bottom: 40px;
 }
 
-/* Scroll indicator - subtle glow at bottom when scrollable */
+/* ===== SCROLL INDICATOR - FIXED ===== */
 #infoPanel::after {
   content: '';
-  position: fixed;
-  bottom: 80px;
+  position: absolute;
+  /* ← FIXED: Changed from fixed to absolute */
+  bottom: 0;
+  /* ← FIXED: Changed from 80px to 0 */
   left: 0;
-  width: 380px;
+  right: 0;
+  /* ← FIXED: Changed from width: 380px to right: 0 */
   height: 60px;
   background: linear-gradient(to top, var(--panel-accent-light), transparent);
   pointer-events: none;
@@ -174,7 +174,6 @@
 }
 
 .panel-section {
-  margin-bottom: 30px;
   margin-bottom: 30px;
 }
 
@@ -281,4 +280,64 @@
   font-size: 0.9em;
   opacity: 0.75;
   color: rgba(255, 255, 255, 0.75);
+}
+
+/* ===== MOBILE RESPONSIVE - NEW ===== */
+@media (max-width: 768px) {
+  #infoPanel {
+    width: 100%;
+    left: -100%;
+    top: 60px;
+    bottom: 100px;
+    /* More space for mobile controls */
+  }
+
+  #infoPanel.visible {
+    left: 0;
+  }
+
+  .panel-header {
+    padding: 20px;
+  }
+
+  .panel-content {
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-size: 1.5em;
+  }
+
+  #timeline.panel-open {
+    padding-left: 0;
+    /* Don't shift timeline on mobile */
+  }
+}
+
+/* ===== VERY SMALL SCREENS ===== */
+@media (max-width: 480px) {
+  .panel-header {
+    padding: 15px;
+  }
+
+  .panel-content {
+    padding: 15px;
+  }
+
+  .panel-title {
+    font-size: 1.3em;
+    letter-spacing: 1px;
+  }
+
+  .panel-date {
+    font-size: 0.9em;
+  }
+
+  .panel-close {
+    width: 35px;
+    height: 35px;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+  }
 }
