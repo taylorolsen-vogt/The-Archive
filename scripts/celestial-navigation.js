@@ -1,11 +1,90 @@
 /**
- * THE ARCHIVE - BODY NAVIGATION MODULE
- * Handle camera transitions when bodies are clicked
+ * THE ARCHIVE - CELESTIAL NAVIGATION MODULE
+ * Handles raycasting for body clicks and camera transitions between bodies
+ * CONSOLIDATED FROM: body-navigation.js + click-detection.js
  */
 
-import { setIsTransitioning, getIsTransitioning, setCurrentBody, getCurrentBody } from './transition-state.js';
-import { scene, camera, renderer, setCameraTarget } from './scene.js';
+import { setIsTransitioning, getIsTransitioning, setCurrentBody, getCurrentBody } from './scene.js';
+import { scene, camera, renderer, setCameraTarget, getIsDragging } from './scene.js';
 import { getMoon, setMoonOrbitActive, resetMoonSize } from './moon.js';
+import { getEarth } from './earth.js';
+
+/* ============================
+   Raycasting (from click-detection.js)
+============================ */
+
+let raycaster = null;
+let mouse = null;
+
+/**
+ * Initialize raycaster (called from scene.js)
+ */
+export function initClickDetection(cameraRef) {
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
+}
+
+/**
+ * Detect clicks on celestial bodies using raycaster
+ */
+export function detectBodyClick(event, rect) {
+  
+  if (getIsDragging()) {
+    console.log('⏸️ Click ignored - currently dragging');
+    return;
+  }
+  
+  // Don't allow clicks during transitions
+  if (getIsTransitioning()) {
+    console.log('⏸️ Click ignored - transition in progress');
+    return;
+  }
+  
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  
+  console.log('🖱️ Click detected at:', mouse.x, mouse.y);
+  
+  // Update raycaster
+  raycaster.setFromCamera(mouse, camera);
+  
+  // Get clickable objects
+  const clickableObjects = [];
+  
+  let moon = getMoon();
+  let earth = getEarth();
+  
+  // Always include Moon and Earth if they exist
+  if (moon) clickableObjects.push(moon);
+  if (earth) clickableObjects.push(earth);
+
+  console.log('📦 Clickable objects:', { moonVisible: moon?.visible, earthExists: !!earth, count: clickableObjects.length });
+
+  // Check for intersections
+  const intersects = raycaster.intersectObjects(clickableObjects);
+  
+  console.log('🎯 Raycaster intersections:', intersects.length);
+  
+  if (intersects.length > 0) {
+    const clickedObject = intersects[0].object;
+    console.log('✅ Object clicked:', clickedObject.name || 'unnamed');
+    
+    // Determine which body was clicked
+    if (clickedObject === moon) {
+      console.log('🌙 MOON CLICKED!');
+      transitionToMoon();
+    } else if (clickedObject === earth) {
+      console.log('🌍 EARTH CLICKED!');
+      transitionToEarth();
+    }
+  } else {
+    console.log('❌ No objects intersected');
+  }
+}
+
+/* ============================
+   Camera Transitions (from body-navigation.js)
+============================ */
 
 /**
  * Transition camera to Moon-centric view
@@ -64,6 +143,9 @@ export function transitionToEarth() {
   openEarthPanel();
 }
 
+/**
+ * Animate camera to a target position with easing
+ */
 function animateCameraToPosition(targetPosition, targetLookAt, duration, onComplete) {
   const startPosition = camera.position.clone();
   const startLookAt = new THREE.Vector3(0, 0, 0);
@@ -128,4 +210,5 @@ function openEarthPanel() {
   }
 }
 
+// Make functions globally accessible for onclick handlers
 window.transitionToEarth = transitionToEarth;

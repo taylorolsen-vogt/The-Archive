@@ -1,12 +1,36 @@
 /**
- * THE ARCHIVE - SCENE MODULE (UPDATED)
+ * THE ARCHIVE - SCENE MODULE
  * Three.js scene, camera, renderer setup and interaction loop
+ * INCLUDES: Transition state (merged from transition-state.js)
  */
 
-import { initClickDetection, detectBodyClick } from './click-detection.js';
+import { initClickDetection, detectBodyClick } from './celestial-navigation.js';
 
 // Scene globals
 export let scene, camera, renderer;
+
+/* ============================
+   Transition State (merged from transition-state.js)
+============================ */
+
+let isTransitioning = false;
+let currentBody = 'earth';
+
+export function setIsTransitioning(value) {
+  isTransitioning = value;
+}
+
+export function getIsTransitioning() {
+  return isTransitioning;
+}
+
+export function setCurrentBody(body) {
+  currentBody = body;
+}
+
+export function getCurrentBody() {
+  return currentBody;
+}
 
 /* ============================
    Camera orbit (mobile-first)

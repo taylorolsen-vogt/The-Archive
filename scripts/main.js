@@ -1,20 +1,17 @@
 /**
  * THE ARCHIVE - MAIN ORCHESTRATOR
  * Imports all modules and initializes the application
+ * UPDATED: Uses consolidated modules (celestial-navigation, timeline-system, layer-system)
  */
 
-// Import all modules
-import { initStarfield, resizeStarfield } from './starfield.js';
-import { initScene, handleResize, scene, camera, renderer } from './scene.js';
+// Import consolidated modules
+import { initStarfield, resizeStarfield, updateSatellites } from './layer-system.js';
+import { initScene, handleResize, scene, camera, renderer, getIsDragging } from './scene.js';
 import { createEarth, animateEarthRotation, updateTimelineVisibility } from './earth.js';
 import { createMoon, updateMoonOrbit } from './moon.js';
-import { updateSatellites } from './satellites.js';
 import { initPanelAtmosphere, closePanel } from './panel.js';
-import { renderTimelineDots, updateTimeline } from './timeline.js';
-import { openPanelForTimelineValue, returnToPresent } from './navigation.js';
-import { getIsDragging } from './scene.js';
-import { togglePlayback } from './playback.js';
-import { toggleLayer, toggleLayersPanel } from './layers.js';
+import { renderTimelineDots, updateTimeline, openPanelForTimelineValue, returnToPresent, togglePlayback } from './timeline-system.js';
+import { toggleLayer, toggleLayersPanel } from './layer-system.js';
 
 // UI Elements
 const bootTitle = document.getElementById('bootTitle');
@@ -125,9 +122,6 @@ window.closePanel = closePanel;
 
 // Set up resize handler
 window.addEventListener('resize', onResize);
-
-// Make closePanel globally accessible for onclick
-window.closePanel = closePanel;
 
 // Start application when page loads
 window.addEventListener('load', init);
