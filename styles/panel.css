@@ -155,7 +155,7 @@
 .panel-content {
   padding: 30px;
   background: rgba(0, 0, 0, 0.2);
-  padding-bottom: 60px;
+  /*padding-bottom: 60px;*/
 }
 
 .panel-section {
