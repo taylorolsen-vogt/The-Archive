@@ -168,6 +168,25 @@
   pointer-events: none;
 }
 
+#infoPanel.visible::before {
+  opacity: 1;
+}
+
+/* ===== SCROLL INDICATOR (GRADIENT AT BOTTOM OF CONTENT) ===== */
+#infoPanel::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to top, var(--panel-accent-light), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 3;
+}
+
 #infoPanel.visible.scrollable::after {
   opacity: 1;
 }
