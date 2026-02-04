@@ -1,9 +1,9 @@
 /* ================================================
-   THE ARCHIVE - INFO PANEL STYLES
-   Shader-backed side panel with breadcrumb navigation
+   THE ARCHIVE - INFO PANEL STYLES (REBUILT)
+   Clean, bug-free panel with shader background
    ================================================ */
 
-/* ===== INFO PANEL ===== */
+/* ===== MAIN PANEL CONTAINER ===== */
 #infoPanel {
   position: fixed;
   left: -400px;
@@ -11,41 +11,57 @@
   bottom: 80px;
   width: 380px;
   z-index: 2;
+
   transition: left 0.5s ease;
   overflow-y: auto;
+  overflow-x: hidden;
   pointer-events: all;
 
-  /* Default theme colors (Earth - blue) */
-  --panel-accent: rgba(77, 153, 204, .15);
-  --panel-accent-light: rgba(77, 153, 204, 0.15);
+  /* Theme colors (Earth - blue by default) */
+  --panel-accent: rgba(77, 153, 204, 1);
+  --panel-accent-light: rgba(77, 153, 204, 0.3);
   --panel-accent-bg: rgba(77, 153, 204, 0.15);
 
-  /* Hide scrollbar but keep functionality */
+  /* Smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+
+  /* Hide scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  /* ← ADDED: Smooth iOS scrolling */
-}
-
-/* Moon theme (light grey/off-white) */
-#infoPanel[data-body="moon"] {
-  --panel-accent: rgba(200, 200, 200, 1);
-  --panel-accent-light: rgba(200, 200, 200, 0.3);
-  --panel-accent-bg: rgba(200, 200, 200, 0.15);
-}
-
-/* Mars theme (orange/red) - for future */
-#infoPanel[data-body="mars"] {
-  --panel-accent: rgba(204, 102, 51, 1);
-  --panel-accent-light: rgba(204, 102, 51, 0.3);
-  --panel-accent-bg: rgba(204, 102, 51, 0.15);
 }
 
 #infoPanel::-webkit-scrollbar {
   display: none;
 }
 
-/* Shader canvas — fills the panel behind everything */
+/* Panel visible state */
+#infoPanel.visible {
+  left: 0;
+}
+
+/* Move timeline when panel opens */
+#timeline.panel-open {
+  padding-left: 100px;
+  transition: padding-left 0.5s ease;
+}
+
+/* ===== THEME COLORS ===== */
+
+/* Moon theme (light grey) */
+#infoPanel[data-body="moon"] {
+  --panel-accent: rgba(200, 200, 200, 1);
+  --panel-accent-light: rgba(200, 200, 200, 0.3);
+  --panel-accent-bg: rgba(200, 200, 200, 0.15);
+}
+
+/* Mars theme (orange/red) */
+#infoPanel[data-body="mars"] {
+  --panel-accent: rgba(204, 102, 51, 1);
+  --panel-accent-light: rgba(204, 102, 51, 0.3);
+  --panel-accent-bg: rgba(204, 102, 51, 0.15);
+}
+
+/* ===== SHADER CANVAS BACKGROUND ===== */
 #infoPanel canvas {
   position: absolute;
   top: 0;
@@ -53,23 +69,14 @@
   width: 100%;
   height: 100%;
   z-index: -1;
+  pointer-events: none;
 }
 
-/* Content layer sits above the shader */
+/* ===== PANEL CONTENT WRAPPER ===== */
 #infoPanelContent {
   position: relative;
   z-index: 1;
-  height: 100%;
-}
-
-#infoPanel.visible {
-  left: 0;
-}
-
-/* Move timeline away from panel when it's open */
-#timeline.panel-open {
-  padding-left: 100px;
-  transition: padding-left 0.5s ease;
+  min-height: 100%;
 }
 
 /* ===== PANEL HEADER ===== */
@@ -79,6 +86,22 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
+.panel-title {
+  font-size: 1.8em;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 8px;
+}
+
+.panel-date {
+  font-size: 1em;
+  opacity: 0.85;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ===== BREADCRUMB NAVIGATION ===== */
 .panel-breadcrumb {
   font-size: 0.85em;
   opacity: 0.9;
@@ -120,7 +143,6 @@
 
 .breadcrumb-item.future:hover {
   text-decoration: none;
-  color: rgba(150, 150, 150, 0.5);
 }
 
 .breadcrumb-separator {
@@ -129,66 +151,15 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-.panel-title {
-  font-size: 1.8em;
-  font-weight: 300;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 8px;
-}
-
-.panel-date {
-  font-size: 1em;
-  opacity: 0.85;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
 /* ===== PANEL CONTENT ===== */
 .panel-content {
   padding: 30px;
   background: rgba(0, 0, 0, 0.2);
-  padding-bottom: 40px;
+  padding-bottom: 60px;
 }
 
-/* ===== SCROLL INDICATOR - FIXED ===== */
-#infoPanel::before {
-  content: '';
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 100px;
-  /* Match the bottom: 80px gap */
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-#infoPanel.visible::before {
-  opacity: 1;
-}
-
-/* ===== SCROLL INDICATOR (GRADIENT AT BOTTOM OF CONTENT) ===== */
-#infoPanel::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: linear-gradient(to top, var(--panel-accent-light), transparent);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 3;
-}
-
-#infoPanel.visible.scrollable::after {
-  opacity: 1;
+.panel-section {
+  margin-bottom: 30px;
 }
 
 .panel-section-title {
@@ -207,7 +178,7 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* ===== PANEL CLOSE BUTTON ===== */
+/* ===== CLOSE BUTTON ===== */
 .panel-close {
   position: absolute;
   top: 20px;
@@ -217,16 +188,20 @@
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(74, 157, 157, 0.3);
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
   transition: all 0.3s;
+
   font-size: 28px;
   line-height: 0;
   color: white;
   padding: 0;
   user-select: none;
+  z-index: 10;
 }
 
 .panel-close:hover {
@@ -266,7 +241,7 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* ===== SUBDIVISION ITEMS ===== */
+/* ===== SUBDIVISION ITEMS (DRILL-DOWN) ===== */
 .subdivision-item {
   padding: 15px;
   margin-bottom: 10px;
@@ -275,12 +250,20 @@
   cursor: pointer;
   transition: all 0.3s;
   border-left: 3px solid var(--panel-accent-light);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .subdivision-item:hover {
   background: var(--panel-accent-light);
   border-left-color: var(--panel-accent);
   transform: translateX(5px);
+}
+
+.subdivision-info {
+  flex: 1;
 }
 
 .subdivision-name {
@@ -290,20 +273,49 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
-.subdivision-years {
+.subdivision-date {
   font-size: 0.9em;
   opacity: 0.75;
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* ===== MOBILE RESPONSIVE - NEW ===== */
+.subdivision-arrow {
+  font-size: 1.5em;
+  opacity: 0.5;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s;
+}
+
+.subdivision-item:hover .subdivision-arrow {
+  opacity: 1;
+  transform: translateX(5px);
+}
+
+/* ===== SCROLL INDICATOR ===== */
+/* Simple gradient at bottom when content is scrollable */
+#infoPanel.scrollable::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+  display: block;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
   #infoPanel {
     width: 100%;
     left: -100%;
     top: 60px;
     bottom: 100px;
-    /* More space for mobile controls */
   }
 
   #infoPanel.visible {
@@ -316,6 +328,7 @@
 
   .panel-content {
     padding: 20px;
+    padding-bottom: 40px;
   }
 
   .panel-title {
@@ -324,11 +337,10 @@
 
   #timeline.panel-open {
     padding-left: 0;
-    /* Don't shift timeline on mobile */
   }
 }
 
-/* ===== VERY SMALL SCREENS ===== */
+/* ===== SMALL SCREENS ===== */
 @media (max-width: 480px) {
   .panel-header {
     padding: 15px;
@@ -336,6 +348,7 @@
 
   .panel-content {
     padding: 15px;
+    padding-bottom: 30px;
   }
 
   .panel-title {
