@@ -155,12 +155,12 @@
 .panel-content {
   padding: 30px;
   background: rgba(0, 0, 0, 0.2);
-  /*padding-bottom: 60px;*/
+  padding-bottom: 60px;
 }
 
-/*.panel-section {
+.panel-section {
   margin-bottom: 30px;
-}*/
+}
 
 .panel-section-title {
   font-size: 0.9em;
